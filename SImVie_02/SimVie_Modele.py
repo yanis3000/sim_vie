@@ -41,68 +41,6 @@ class Creature:
     def percevoir(self, aliments, glandes):
         self.narines.sentir(aliments, glandes, self.glande)
 
-        # """
-        # Retourne deux valeurs (gauche, droite) entre 0 et 1,
-        # représentant l'intensité olfactive perçue sur chaque côté.
-        # Simule une stéréoscopie olfactive simplifiée.
-        # """
-        # # --- Accumulateurs pour les deux "narines" ---
-        # gauche, droite = 0.0, 0.0
-        # g_gauche, g_droite = 0.0, 0.0
-
-        # # --- Boucle sur chaque source d'odeur (aliment) ---
-        # for a in aliments:
-        #     # Distance euclidienne entre la créature et l'aliment
-        #     d = distance(self.position, a.position)
-
-        #     # Si l'aliment est dans la portée olfactive
-        #     if d < (self.narines.portee_olfactive + a.rayon_senteur):
-        #         # Calcul de l'angle absolu vers la source
-        #         ang = angle_relatif(self.position, a.position)
-        #         # Conversion en angle relatif à l'orientation du corps
-        #         # (normalisation dans l'intervalle -180° à +180°)
-        #         rel = (ang - self.orientation + 540) % 360 - 180
-
-        #         # Intensité du signal olfactif : plus c’est proche, plus c’est fort
-        #         # On ajoute +1 pour éviter une division par zéro
-        #         odeur = a.valeur_nourriture / (d + 1)
-
-        #         # Répartition stéréoscopique :
-        #         # - Si la source est dans l’hémisphère gauche (-90° < angle < 0°)
-        #         #   → accumulation sur le capteur gauche
-        #         # - Si elle est à droite (0° < angle < 90°)
-        #         #   → accumulation sur le capteur droit
-        #         if -90 < rel < 0:
-        #             gauche += odeur
-        #         elif 0 <= rel < 90:
-        #             droite += odeur
-
-        # for g in glandes:
-        #     if self.glande != g:
-        #         d = distance(self.position, g.position)
-
-        #         if d < (self.narines.portee_olfactive + g.rayon_senteur):
-        #             ang = angle_relatif(self.position, g.position)
-        #             rel = (ang - self.orientation + 540) % 360 - 180
-
-        #             g_odeur = g.valeur_pheromone / (d + 1)
-        #             if -90 < rel < 0:
-        #                 g_gauche += g_odeur
-        #             elif 0 <= rel < 90:
-        #                 g_droite += g_odeur
-
-
-        # # --- Normalisation du signal ---
-        # # Le rapport /10 permet de limiter la saturation du capteur :
-        # # un grand nombre de sources ou une très forte odeur reste borné à 1.0.
-        # gauche = min(1.0, gauche / 10)
-        # droite = min(1.0, droite / 10)
-        # g_gauche = min(1.0, g_gauche / 10)
-        # g_droite = min(1.0, g_droite / 10)
-
-        # # Retourne le couple d’intensités olfactives (gauche, droite)
-        # return {"aliments" : [gauche, droite], "phéromones" : [g_gauche, g_droite]}
-
     # --- Comportement global ---
     def agir(self, aliments, glandes):
         """
@@ -113,10 +51,8 @@ class Creature:
         # --- 1. PERCEPTION SENSORIELLE ---
         # Le cerveau reçoit deux entrées : intensité olfactive gauche/droite (0 à 1)
 
-        self.percevoir(aliments, glandes)
-
-        gauche, droite = self.narines.hemi_nourriture_gauche, self.narines.hemi_nourriture_droite
-        g_gauche, g_droite = self.narines.hemi_pheromone_gauche, self.narines.hemi_pheromone_droite
+        nour_gauche, nour_droite = self.narines.hemi_nourriture_gauche, self.narines.hemi_nourriture_droite
+        phero_gauche, phero_droite = self.narines.hemi_pheromone_gauche, self.narines.hemi_pheromone_droite
 
         # --- 2. TRAITEMENT NEURONAL ---
         # Le système nerveux interne traite les signaux sensoriels
@@ -126,13 +62,13 @@ class Creature:
 
         # --- 3. ORIENTATION ---
         # Différence gauche-droite → rotation vers le côté le plus odorant
-        delta_orientation = (droite - gauche) * 8
+        delta_orientation = (nour_droite - nour_gauche) * 8
         # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
         self.orientation += delta_orientation + random.uniform(-1, 1)
 
         # --- 4. DÉPLACEMENT ---
         # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
-        intensite = max(0.05, (gauche + droite) / 2)
+        intensite = max(0.05, (nour_gauche + nour_droite) / 2)
         angle = math.radians(self.orientation)
         dx = self.vitesse * intensite * math.cos(angle)
         dy = self.vitesse * intensite * math.sin(angle)
