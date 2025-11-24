@@ -3,8 +3,7 @@
 # ------------------------------------------------------------
 import random, math
 from SimVie_Neurone import SystemeNerveux
-from objects_olfactifs import Glande, Aliment
-from organe_olfactif import Nez
+from SimVie_Odeur import Glande, Aliment, Nez
 
 # ------------------------------------------------------------
 # Données environnementales
@@ -105,7 +104,7 @@ class Modele:
         self.aliments = []
         self.creatures = []
         self.glandes = []
-        self.creer_environnement(3000, 50)
+        self.creer_environnement(10, 1)
 
     def creer_environnement(self, nb_aliments, nb_creatures):
         for _ in range(nb_aliments):

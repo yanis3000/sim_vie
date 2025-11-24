@@ -50,7 +50,7 @@ class Neurone():
 class SystemeNerveux:
     """Réseau neuronal hiérarchique :
        capteurs -> ganglions sensoriels -> interneurones -> ganglions moteurs -> moteurs"""
-    def __init__(self, ganglion, nb_moteurs=2):
+    def __init__(self, ganglion, nb_moteurs=8):
         self.ganglions = ganglion
 
         self.moteurs_gauche = []
@@ -78,7 +78,7 @@ class SystemeNerveux:
         creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
 
         # Propagation à travers le réseau
-        creature.narines.capteur.ganglion.propager
+        creature.narines.capteur.ganglion.propager()
 
         for n in self.moteurs_gauche:
             n.evaluer()

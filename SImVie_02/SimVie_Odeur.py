@@ -1,3 +1,29 @@
+# ------------------------------------------------------------
+# Glandes
+# ------------------------------------------------------------
+
+class Glande() :
+    def __init__(self, valeur_envie, position):
+        self.position = position
+        self.valeur_pheromone = valeur_envie * 0.1
+        self.rayon_senteur = valeur_envie * 5
+
+    def emettre_pheromones(self, valeur_envie):
+        self.valeur_envie = valeur_envie
+        self.rayon_senteur = valeur_envie * 5
+
+
+# ------------------------------------------------------------
+# Aliment
+# ------------------------------------------------------------
+class Aliment:
+    def __init__(self, position, valeur_nourriture):
+        self.position = position
+        self.valeur_nourriture = valeur_nourriture
+        self.taille = valeur_nourriture * 0.1
+        self.rayon_senteur = valeur_nourriture * 5
+
+
 import math, random
 from SimVie_Neurone import Neurone
 
@@ -62,10 +88,15 @@ class Nez:
                     elif 0 <= rel < 90:
                         self.hemi_pheromone_droite += odeur
 
-        self.hemi_nourriture_gauche = min(1.0, self.hemi_nourriture_gauche / 10)
-        self.hemi_nourriture_droite = min(1.0, self.hemi_nourriture_droite / 10)
-        self.hemi_pheromone_gauche = min(1.0, self.hemi_pheromone_gauche / 10)
-        self.hemi_pheromone_droite = min(1.0, self.hemi_pheromone_droite / 10)            
+        a = self.hemi_nourriture_gauche + min(1.0, self.hemi_nourriture_gauche / 10 - 0.1) 
+        b = self.hemi_nourriture_droite + min(1.0, self.hemi_nourriture_droite / 10 - 0.1) 
+        c = self.hemi_pheromone_gauche + min(1.0, self.hemi_pheromone_gauche / 10 - 0.1) 
+        d = self.hemi_pheromone_droite + min(1.0, self.hemi_pheromone_droite / 10 - 0.1) 
+        
+        self.hemi_nourriture_gauche = a if a > 0 else 0
+        self.hemi_nourriture_droite = b if b > 0 else 0
+        self.hemi_pheromone_gauche = c if c > 0 else 0
+        self.hemi_pheromone_droite = d if d > 0 else 0
 
 
 class Capteur:
@@ -83,9 +114,9 @@ class Capteur:
         self.vomeronasal_droite = []
 
         for i in range(neurone_vomeronasal):
-            neurone = Neurone(seuil=0.5)
+            neurone = Neurone(seuil=0.3)
             self.vomeronasal_gauche.append(neurone)
-            neurone = Neurone(seuil=0.5)
+            neurone = Neurone(seuil=0.3)
             self.vomeronasal_droite.append(neurone)
 
         self.ganglion = GanglionOlfactif(self.olfactif_gauche, self.olfactif_droite, self.vomeronasal_gauche, self.vomeronasal_droite)
@@ -103,6 +134,8 @@ class Capteur:
 
         for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.olfactif_droite))]):
             neurone.actif = neurone.seuil < valeur
+
+        pass
 
 class GanglionOlfactif:
 
