@@ -50,26 +50,8 @@ class Neurone():
 class SystemeNerveux:
     """Réseau neuronal hiérarchique :
        capteurs -> ganglions sensoriels -> interneurones -> ganglions moteurs -> moteurs"""
-    def __init__(self, ganglion, nb_moteurs=8):
-        self.ganglions = ganglion
-
-        self.moteurs_gauche = []
-        for m in range(nb_moteurs):
-            neurone = Neurone(seuil=0.8)
-            self.moteurs_gauche.append(neurone)
-
-        self.moteurs_droite = []
-        for m in range(nb_moteurs):
-            neurone = Neurone(seuil=0.8)
-            self.moteurs_droite.append(neurone)
-
-        for gg in self.ganglions.neurone_gauche:
-            for m in random.sample(self.moteurs_droite, k=2):
-                gg.connecter_a(m, random.uniform(0.5, 1.0))
-
-        for gd in self.ganglions.neurone_droite:
-            for m in random.sample(self.moteurs_gauche, k=2):
-                gd.connecter_a(m, random.uniform(0.5, 1.0))
+    def __init__(self):
+        pass
 
     # --- Simulation d'un cycle d'activité ---
     def cycle(self, creature, stimuli_nourriture, stimuli_pheromone):
@@ -80,12 +62,4 @@ class SystemeNerveux:
         # Propagation à travers le réseau
         creature.narines.capteur.ganglion.propager()
 
-        for n in self.moteurs_gauche:
-            n.evaluer()
-        for n in self.moteurs_droite:
-            n.evaluer()
-
-        # Retourne le taux d’activation motrice global (0-1)
-        actifs_gauche = sum(1 for m in self.moteurs_gauche if m.actif)
-        actifs_droite = sum(1 for m in self.moteurs_droite if m.actif)
-        return [actifs_gauche / len(self.moteurs_gauche), actifs_droite / len(self.moteurs_droite)]
+        creature.pattes.activer()

@@ -4,6 +4,7 @@
 import random, math
 from SimVie_Neurone import SystemeNerveux
 from SimVie_Odeur import Glande, Aliment, Nez
+from SimVie_Moteur import Pattes
 
 # ------------------------------------------------------------
 # Données environnementales
@@ -30,7 +31,8 @@ class Creature:
         self.vitesse = 20
         self.energie = 100
         self.narines = Nez(self.taille, random.uniform(0.8, 1.2), self.position, self.orientation)
-        self.cerveau = SystemeNerveux(self.narines.capteur.ganglion)
+        self.cerveau = SystemeNerveux()
+        self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation)
 
         self.envie_reproduction = random.randint(10, 100)
         self.glande = Glande(self.envie_reproduction, self.position)
@@ -59,32 +61,31 @@ class Creature:
         # Le système nerveux interne traite les signaux sensoriels
         # et produit une activation motrice globale (de 0 à 1)
 
-        activation = self.cerveau.cycle(self, stimuli_nourriture, stimuli_pheromone)
-        print(activation[0], activation[1])
+        self.cerveau.cycle(self, stimuli_nourriture, stimuli_pheromone)
 
-        # # --- 3. ORIENTATION ---
-        # # Différence gauche-droite → rotation vers le côté le plus odorant
-        # delta_orientation = (nour_droite - nour_gauche) * 8
-        # # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
-        # self.orientation += delta_orientation + random.uniform(-1, 1)
+        # --- 3. ORIENTATION ---
+        # Différence gauche-droite → rotation vers le côté le plus odorant
+        delta_orientation = (self.pattes.actif_droite - self.pattes.actif_gauche) * 8
+        # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
+        self.orientation += delta_orientation + random.uniform(-1, 1)
 
-        # # --- 4. DÉPLACEMENT ---
-        # # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
-        # intensite = max(0.05, (nour_gauche + nour_droite) / 2)
-        # angle = math.radians(self.orientation)
-        # dx = self.vitesse * intensite * math.cos(angle)
-        # dy = self.vitesse * intensite * math.sin(angle)
-        # self.position = (self.position[0] + dx, self.position[1] + dy)
+        # --- 4. DÉPLACEMENT ---
+        # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
+        intensite = max(0.05, (self.pattes.actif_droite + self.pattes.actif_gauche) / 2)
+        angle = math.radians(self.orientation)
+        dx = self.vitesse * intensite * math.cos(angle)
+        dy = self.vitesse * intensite * math.sin(angle)
+        self.position = (self.position[0] + dx, self.position[1] + dy)
 
-        # # --- 5. MÉTABOLISME ---
-        # # Chaque déplacement consomme de l'énergie.
-        # # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
-        # self.energie -= 0.05 + (0.2 * intensite)
-        # if self.energie < 0:
-        #     self.energie = 0
+        # --- 5. MÉTABOLISME ---
+        # Chaque déplacement consomme de l'énergie.
+        # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
+        self.energie -= 0.05 + (0.2 * intensite)
+        if self.energie < 0:
+            self.energie = 0
 
-        # # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
-        # # Si la créature touche un aliment, elle le consomme.
+        # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
+        # Si la créature touche un aliment, elle le consomme.
         # for a in aliments[:]:
         #     if distance(self.position, a.position) < (self.taille + a.taille):
         #         self.manger(a, aliments)

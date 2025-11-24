@@ -1,3 +1,18 @@
+import math, random
+from SimVie_Neurone import Neurone
+
+# ------------------------------------------------------------
+# Données environnementales
+# ------------------------------------------------------------
+def distance(a, b):
+    return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+
+def angle_relatif(src, cible):
+    """Retourne l’angle relatif entre la créature et la cible (en degrés)."""
+    dx = cible[0] - src[0]
+    dy = cible[1] - src[1]
+    return math.degrees(math.atan2(dy, dx))
+
 # ------------------------------------------------------------
 # Glandes
 # ------------------------------------------------------------
@@ -22,22 +37,6 @@ class Aliment:
         self.valeur_nourriture = valeur_nourriture
         self.taille = valeur_nourriture * 0.1
         self.rayon_senteur = valeur_nourriture * 5
-
-
-import math, random
-from SimVie_Neurone import Neurone
-
-# ------------------------------------------------------------
-# Données environnementales
-# ------------------------------------------------------------
-def distance(a, b):
-    return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
-
-def angle_relatif(src, cible):
-    """Retourne l’angle relatif entre la créature et la cible (en degrés)."""
-    dx = cible[0] - src[0]
-    dy = cible[1] - src[1]
-    return math.degrees(math.atan2(dy, dx))
 
 class Nez:
     def __init__(self, taille_creature, sensibilite_olfactive, position, orientation):
