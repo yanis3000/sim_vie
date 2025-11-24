@@ -2,7 +2,7 @@ from SimVie_Neurone import Neurone
 import math, random
 
 class Pattes:
-    def __init__(self, ganglions, position, orientation, nb_moteurs = 8):
+    def __init__(self, ganglions, position, orientation, nb_moteurs = 16):
         
         self.position = position
         self.orientation = orientation
@@ -22,11 +22,11 @@ class Pattes:
 
         for gg in ganglions.neurone_gauche:
             for m in random.sample(self.moteurs_gauche, k=2):
-                gg.connecter_a(m, random.uniform(0.5, 1.0))
+                gg.connecter_a(m, 0.5)
 
         for gd in ganglions.neurone_droite:
             for m in random.sample(self.moteurs_droite, k=2):
-                gd.connecter_a(m, random.uniform(0.5, 1.0))
+                gd.connecter_a(m, 0.5)
 
     
     def activer(self):
@@ -35,7 +35,7 @@ class Pattes:
         for n in self.moteurs_droite:
             n.evaluer()
 
-        self.actif_gauche = sum(1 for m in self.moteurs_gauche if m.actif) / len(self.moteurs_gauche)
-        self.actif_droite = sum(1 for m in self.moteurs_droite if m.actif) / len(self.moteurs_droite)
+        self.actif_gauche = sum(m.potentiel for m in self.moteurs_gauche if m.actif) / len(self.moteurs_gauche)
+        self.actif_droite = sum(m.potentiel for m in self.moteurs_droite if m.actif) / len(self.moteurs_droite)
 
     

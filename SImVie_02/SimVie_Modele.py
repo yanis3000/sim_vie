@@ -28,7 +28,7 @@ class Creature:
         self.position = position
         self.taille = taille
         self.orientation = random.uniform(0, 360)
-        self.vitesse = 20
+        self.vitesse = 10  
         self.energie = 100
         self.narines = Nez(self.taille, random.uniform(0.8, 1.2), self.position, self.orientation)
         self.cerveau = SystemeNerveux()
@@ -65,7 +65,7 @@ class Creature:
 
         # --- 3. ORIENTATION ---
         # Différence gauche-droite → rotation vers le côté le plus odorant
-        delta_orientation = (self.pattes.actif_droite - self.pattes.actif_gauche) * 8
+        delta_orientation = (self.pattes.actif_gauche - self.pattes.actif_droite) * 90
         # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
         self.orientation += delta_orientation + random.uniform(-1, 1)
 
