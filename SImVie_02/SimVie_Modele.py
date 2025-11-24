@@ -115,15 +115,13 @@ class Modele:
         for _ in range(nb_creatures):
             pos = (random.randint(0, self.largeur_terrain),
                    random.randint(0, self.hauteur_terrain))
-            self.creatures.append(Creature(pos, random.randint(15, 40)))
-
-    def mise_a_jour(self):
-        self.glandes = []
-        for c in self.creatures:
-            c.glande.emettre_pheromones(c.envie_reproduction)
+            c = Creature(pos, random.randint(15, 40))
+            self.creatures.append(c)
             self.glandes.append(c.glande)
 
+    def mise_a_jour(self):
         for c in self.creatures:
+            c.glande.emettre_pheromones(c.envie_reproduction)
             c.percevoir(self.aliments, self.glandes)
             c.agir()
 
