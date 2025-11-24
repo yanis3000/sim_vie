@@ -115,16 +115,14 @@ class Creature:
 
         self.percevoir(aliments, glandes)
 
-        # stimuli = self.percevoir(aliments, glandes)
-        # gauche, droite = stimuli["aliments"]
-        # g_gauche, g_droite = stimuli["phéromones"]
+        gauche, droite = self.narines.hemi_nourriture_gauche, self.narines.hemi_nourriture_droite
+        g_gauche, g_droite = self.narines.hemi_pheromone_gauche, self.narines.hemi_pheromone_droite
 
         # --- 2. TRAITEMENT NEURONAL ---
         # Le système nerveux interne traite les signaux sensoriels
         # et produit une activation motrice globale (de 0 à 1)
 
         # activation = self.cerveau.cycle(self.narines.capteur.capteurs, self.narines.capteur.vomeronasal, stimuli)
-        # print(activation)
 
         # --- 3. ORIENTATION ---
         # Différence gauche-droite → rotation vers le côté le plus odorant

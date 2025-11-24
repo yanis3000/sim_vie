@@ -50,33 +50,21 @@ class Neurone():
 class SystemeNerveux:
     """Réseau neuronal hiérarchique :
        capteurs -> ganglions sensoriels -> interneurones -> ganglions moteurs -> moteurs"""
-    def __init__(self, ganglion, nb_ganglions=4, nb_inter=10, nb_moteurs=4):
+    def __init__(self, ganglion, nb_moteurs=4):
         self.ganglions = ganglion
 
-        self.interneurones = []
-        for i in range(nb_inter):
-            neurone = Neurone(seuil=1.2)
-            self.interneurones.append(neurone)
-
-        self.ganglions_moteurs = []
-        for i in range(nb_ganglions):
-            neurone = Neurone(seuil=1.0)
-            self.ganglions_moteurs.append(neurone)
-
         self.moteurs = []
-        for i in range(nb_moteurs):
+        for m in range(nb_moteurs):
             neurone = Neurone(seuil=0.8)
             self.moteurs.append(neurone)
 
-        for g in self.ganglions.neurone:
-            for i in random.sample(self.interneurones, k=3):
-                g.connecter_a(i, random.uniform(0.5, 1.0))
-        for i in self.interneurones:
-            for gm in random.sample(self.ganglions_moteurs, k=2):
-                i.connecter_a(gm, random.uniform(0.4, 1.0))
-        for gm in self.ganglions_moteurs:
+        for gg in self.ganglions.neurone_gauche:
             for m in random.sample(self.moteurs, k=2):
-                gm.connecter_a(m, random.uniform(0.5, 1.0))
+                gg.connecter_a(m, random.uniform(0.5, 1.0))
+
+        for gd in self.ganglions.neurone_droite:
+            for m in random.sample(self.moteurs, k=2):
+                gd.connecter_a(m, random.uniform(0.5, 1.0))
 
     # --- Simulation d'un cycle d'activité ---
     def cycle(self, capteurs, vomeronasal, stimulations):
