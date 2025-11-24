@@ -14,7 +14,10 @@ def angle_relatif(src, cible):
     return math.degrees(math.atan2(dy, dx))
 
 class Nez:
-    def __init__(self, taille_creature, sensibilite_olfactive):
+    def __init__(self, taille_creature, sensibilite_olfactive, position, orientation):
+
+        self.position = position
+        self.orientation = orientation
 
         self.hemi_nourriture_gauche = 0
         self.hemi_nourriture_droite = 0
@@ -52,7 +55,7 @@ class Nez:
 
                     ang = angle_relatif(self.position, g.position)
                     rel = (ang - self.orientation + 540) % 360 - 180
-                    odeur = g.valeur_nourriture / (d + 1)
+                    odeur = g.valeur_pheromone / (d + 1)
 
                     if -90 < rel < 0:
                         self.hemi_pheromone_gauche += odeur
@@ -69,7 +72,6 @@ class Capteur:
     def __init__(self, neurone_olfactif=8, neurone_vomeronasal=8):
         self.olfactif_gauche = []
         self.olfactif_droite = []
-
 
         for i in range(neurone_olfactif):
             neurone = Neurone(seuil=0.5)
@@ -88,8 +90,19 @@ class Capteur:
 
         self.ganglion = GanglionOlfactif(self.olfactif_gauche, self.olfactif_droite, self.vomeronasal_gauche, self.vomeronasal_droite)
 
-    def recevoir(self, stimuli):
-        pass
+    def activer(self, stimuli_nourriture, stimuli_pheromone):
+        # Activer les capteurs
+        for neurone, valeur in zip(self.olfactif_gauche, [stimuli_nourriture[0] for _ in range(len(self.olfactif_gauche))]):
+            neurone.actif = neurone.seuil < valeur
+
+        for neurone, valeur in zip(self.olfactif_droite, [stimuli_nourriture[1] for _ in range(len(self.olfactif_droite))]):
+            neurone.actif = neurone.seuil < valeur
+
+        for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.olfactif_gauche))]):
+            neurone.actif = neurone.seuil < valeur
+
+        for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.olfactif_droite))]):
+            neurone.actif = neurone.seuil < valeur
 
 class GanglionOlfactif:
 
@@ -127,3 +140,9 @@ class GanglionOlfactif:
                 v.connecter_a(g, 0.7)
             for g in random.sample(self.neurone_droite, k = math.ceil(len(self.neurone_droite) * 0.3)):
                 v.connecter_a(g, 0.7)
+        
+    def propager(self):
+        for n in self.neurone_droite:
+            n.evaluer()
+        for n in self.neurone_gauche:
+            n.evaluer()

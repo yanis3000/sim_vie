@@ -50,40 +50,42 @@ class Neurone():
 class SystemeNerveux:
     """Réseau neuronal hiérarchique :
        capteurs -> ganglions sensoriels -> interneurones -> ganglions moteurs -> moteurs"""
-    def __init__(self, ganglion, nb_moteurs=4):
+    def __init__(self, ganglion, nb_moteurs=2):
         self.ganglions = ganglion
 
-        self.moteurs = []
+        self.moteurs_gauche = []
         for m in range(nb_moteurs):
             neurone = Neurone(seuil=0.8)
-            self.moteurs.append(neurone)
+            self.moteurs_gauche.append(neurone)
+
+        self.moteurs_droite = []
+        for m in range(nb_moteurs):
+            neurone = Neurone(seuil=0.8)
+            self.moteurs_droite.append(neurone)
 
         for gg in self.ganglions.neurone_gauche:
-            for m in random.sample(self.moteurs, k=2):
+            for m in random.sample(self.moteurs_droite, k=2):
                 gg.connecter_a(m, random.uniform(0.5, 1.0))
 
         for gd in self.ganglions.neurone_droite:
-            for m in random.sample(self.moteurs, k=2):
+            for m in random.sample(self.moteurs_gauche, k=2):
                 gd.connecter_a(m, random.uniform(0.5, 1.0))
 
     # --- Simulation d'un cycle d'activité ---
-    def cycle(self, capteurs, vomeronasal, stimulations):
+    def cycle(self, creature, stimuli_nourriture, stimuli_pheromone):
         """stimulations : liste de valeurs entre 0 et 1 pour chaque capteur"""
-        # Activer les capteurs
-        for neurone, valeur in zip(capteurs, [x for x in stimulations["aliments"] for _ in range(4)]):
-            neurone.actif = random.random() < valeur
 
-        for neurone, valeur in zip(vomeronasal, stimulations["phéromones"]):
-            neurone.actif = random.random() < valeur
+        creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
 
         # Propagation à travers le réseau
-        for couche in [self.ganglions.neurone,
-                       self.interneurones,
-                       self.ganglions_moteurs,
-                       self.moteurs]:
-            for n in couche:
-                n.evaluer()
+        creature.narines.capteur.ganglion.propager
+
+        for n in self.moteurs_gauche:
+            n.evaluer()
+        for n in self.moteurs_droite:
+            n.evaluer()
 
         # Retourne le taux d’activation motrice global (0-1)
-        actifs = sum(1 for m in self.moteurs if m.actif)
-        return actifs / len(self.moteurs)
+        actifs_gauche = sum(1 for m in self.moteurs_gauche if m.actif)
+        actifs_droite = sum(1 for m in self.moteurs_droite if m.actif)
+        return [actifs_gauche / len(self.moteurs_gauche), actifs_droite / len(self.moteurs_droite)]
