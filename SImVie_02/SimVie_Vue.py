@@ -21,6 +21,7 @@ class Vue:
         self.tick = 0
         self.afficher_odeurs = tk.BooleanVar(value=False)     # décoché par défaut
         self.afficher_champs = tk.BooleanVar(value=False)     # décoché par défaut
+        self.afficher_phero = tk.BooleanVar(value=False)
 
         self.largeur = 1000
         self.hauteur = 800
@@ -94,6 +95,8 @@ class Vue:
         tk.Checkbutton(self.frame_config, text="Afficher odeurs", variable=self.afficher_odeurs,
                        bg="#dde7ec", command=self.maj_visibilite).pack(anchor="w")
         tk.Checkbutton(self.frame_config, text="Afficher champs sensoriels", variable=self.afficher_champs,
+                       bg="#dde7ec", command=self.maj_visibilite).pack(anchor="w")
+        tk.Checkbutton(self.frame_config, text="Afficher les phéromones", variable=self.afficher_phero,
                        bg="#dde7ec", command=self.maj_visibilite).pack(anchor="w")
 
         # --- Statistiques dynamiques ---
@@ -174,6 +177,7 @@ class Vue:
         self.id_pointes = {}
         self.id_aliments = {}
         self.id_olfaction = {}
+        self.id_phero = {}
         self.id_odeur = {}
 
         for aliment in self.modele.aliments:
@@ -217,13 +221,18 @@ class Vue:
         id_p = self.canevas.create_oval(px - 2, py - 2, px + 2, py + 2, fill="black", outline="")
 
         # Champ olfactif
-        portee = creature.narines.portee_olfactive
-        id_o = self.canevas.create_oval(x - portee, y - portee, x + portee, y + portee,
+        portee_o = creature.narines.portee_olfactive
+        id_o = self.canevas.create_oval(x - portee_o, y - portee_o, x + portee_o, y + portee_o,
                                         outline="#00cccc", width=1, dash=(4, 4))
-
+        
+        #Champ phéromones
+        portee_phero = creature.glande.rayon_senteur
+        id_phero = self.canevas.create_oval(x - portee_phero, y - portee_phero, x + portee_phero, y + portee_phero,
+                                        outline="#cc0000", width=1, dash=(3, 3))
         self.id_creatures[creature] = id_c
         self.id_pointes[creature] = id_p
         self.id_olfaction[creature] = id_o
+        self.id_phero[creature] = id_phero
 
     # ========================================================
     # RAFRAÎCHISSEMENT
@@ -262,6 +271,9 @@ class Vue:
         portee = creature.narines.portee_olfactive
         self.canevas.coords(self.id_olfaction[creature], x - portee, y - portee, x + portee, y + portee)
 
+        portee_phero = creature.glande.rayon_senteur
+        self.canevas.coords(self.id_phero[creature], x - portee_phero, y - portee_phero, x + portee_phero, y + portee_phero)
+
     # ========================================================
     # VISIBILITÉ DES CHAMPS
     # ========================================================
@@ -274,6 +286,10 @@ class Vue:
         etat_champ = 'normal' if self.afficher_champs.get() else 'hidden'
         for cid in self.id_olfaction.values():
             self.canevas.itemconfig(cid, state=etat_champ)
+
+        etat_phero = 'normal' if self.afficher_phero.get() else 'hidden'
+        for cid in self.id_phero.values():
+            self.canevas.itemconfig(cid, state=etat_phero)
 
     # ========================================================
     # STATS & OUTILS

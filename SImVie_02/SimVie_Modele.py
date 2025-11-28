@@ -128,7 +128,7 @@ class Modele:
 
     def mise_a_jour(self):
         for c in self.creatures:
-            c.glande.emettre_pheromones(c.envie_reproduction)
+            c.glande.emettre_pheromones(c.envie_reproduction, c.position)
             c.agir(self.aliments, self.glandes)
 
     def reinitialiser_simulation(self, params):

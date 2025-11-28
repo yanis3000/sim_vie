@@ -23,7 +23,8 @@ class Glande() :
         self.valeur_pheromone = valeur_envie * 0.1
         self.rayon_senteur = valeur_envie * 5
 
-    def emettre_pheromones(self, valeur_envie):
+    def emettre_pheromones(self, valeur_envie, position):
+        self.position = position
         self.valeur_envie = valeur_envie
         self.rayon_senteur = valeur_envie * 5
 
