@@ -38,4 +38,6 @@ class Pattes:
         self.actif_gauche = sum(m.potentiel for m in self.moteurs_gauche if m.actif) / len(self.moteurs_gauche)
         self.actif_droite = sum(m.potentiel for m in self.moteurs_droite if m.actif) / len(self.moteurs_droite)
 
+        return self.actif_gauche, self.actif_droite
+
     

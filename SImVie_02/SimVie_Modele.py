@@ -39,10 +39,12 @@ class Creature:
 
     # --- Olfaction directionnelle ---
     def percevoir(self, aliments, glandes):
+        self.narines.position = self.position
+        self.narines.orientation = self.orientation
         self.narines.sentir(aliments, glandes, self.glande)
 
     # --- Comportement global ---
-    def agir(self):
+    def agir(self, aliments, glandes):
         """
         Boucle perception-action de la créature.
         Elle perçoit les odeurs, ajuste son orientation, se déplace,
@@ -51,27 +53,32 @@ class Creature:
         # --- 1. PERCEPTION SENSORIELLE ---
         # Le cerveau reçoit deux entrées : intensité olfactive gauche/droite (0 à 1)
 
+        self.percevoir(aliments, glandes)
+
         stimuli_nourriture = [self.narines.hemi_nourriture_gauche, 
                    self.narines.hemi_nourriture_droite]
         
         stimuli_pheromone = [self.narines.hemi_pheromone_gauche, 
                    self.narines.hemi_pheromone_droite]
+        
+        
 
         # --- 2. TRAITEMENT NEURONAL ---
         # Le système nerveux interne traite les signaux sensoriels
         # et produit une activation motrice globale (de 0 à 1)
 
-        self.cerveau.cycle(self, stimuli_nourriture, stimuli_pheromone)
+        actif_g, actif_d = self.cerveau.cycle(self, stimuli_nourriture, stimuli_pheromone)
 
         # --- 3. ORIENTATION ---
+
         # Différence gauche-droite → rotation vers le côté le plus odorant
-        delta_orientation = (self.pattes.actif_gauche - self.pattes.actif_droite) * 90
+        delta_orientation = (actif_d - actif_g) * 20
         # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
         self.orientation += delta_orientation + random.uniform(-1, 1)
 
         # --- 4. DÉPLACEMENT ---
         # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
-        intensite = max(0.05, (self.pattes.actif_droite + self.pattes.actif_gauche) / 2)
+        intensite = max(0.05, (actif_g + actif_d) / 2)
         angle = math.radians(self.orientation)
         dx = self.vitesse * intensite * math.cos(angle)
         dy = self.vitesse * intensite * math.sin(angle)
@@ -86,9 +93,9 @@ class Creature:
 
         # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
         # Si la créature touche un aliment, elle le consomme.
-        # for a in aliments[:]:
-        #     if distance(self.position, a.position) < (self.taille + a.taille):
-        #         self.manger(a, aliments)
+        for a in aliments[:]:
+            if distance(self.position, a.position) < (self.taille + a.taille):
+                self.manger(a, aliments)
 
     def manger(self, aliment, aliments):
         self.energie = min(100, self.energie + aliment.valeur_nourriture)
@@ -105,7 +112,7 @@ class Modele:
         self.aliments = []
         self.creatures = []
         self.glandes = []
-        self.creer_environnement(10, 1)
+        self.creer_environnement(3000, 50)
 
     def creer_environnement(self, nb_aliments, nb_creatures):
         for _ in range(nb_aliments):
@@ -122,8 +129,7 @@ class Modele:
     def mise_a_jour(self):
         for c in self.creatures:
             c.glande.emettre_pheromones(c.envie_reproduction)
-            c.percevoir(self.aliments, self.glandes)
-            c.agir()
+            c.agir(self.aliments, self.glandes)
 
     def reinitialiser_simulation(self, params):
         random.seed(params["seed"])

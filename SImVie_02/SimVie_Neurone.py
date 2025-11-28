@@ -62,4 +62,6 @@ class SystemeNerveux:
         # Propagation à travers le réseau
         creature.narines.capteur.ganglion.propager()
 
-        creature.pattes.activer()
+        activation = creature.pattes.activer()
+
+        return activation
