@@ -6,7 +6,7 @@ from SimVie_Vue import Vue
 
 class Controleur:
     def __init__(self):
-        self.modele = Modele(self, 5000, 5000)
+        self.modele = Modele(self, 1000, 800, 100, 5)
         self.vue = Vue(self, self.modele)
         self.jouer_tour()
         self.vue.root.mainloop()

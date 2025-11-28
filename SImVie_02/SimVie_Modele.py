@@ -72,7 +72,7 @@ class Creature:
         # --- 3. ORIENTATION ---
 
         # Différence gauche-droite → rotation vers le côté le plus odorant
-        delta_orientation = (actif_d - actif_g) * 20
+        delta_orientation = (actif_d - actif_g) * 8
         # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
         self.orientation += delta_orientation + random.uniform(-1, 1)
 
@@ -105,14 +105,14 @@ class Creature:
 # Modèle général
 # ------------------------------------------------------------
 class Modele:
-    def __init__(self, controleur, largeur_terrain, hauteur_terrain):
+    def __init__(self, controleur, largeur_terrain, hauteur_terrain, nb_aliments, nb_creatures):
         self.controleur = controleur
         self.largeur_terrain = largeur_terrain
         self.hauteur_terrain = hauteur_terrain
         self.aliments = []
         self.creatures = []
         self.glandes = []
-        self.creer_environnement(3000, 50)
+        self.creer_environnement(nb_aliments, nb_creatures)
 
     def creer_environnement(self, nb_aliments, nb_creatures):
         for _ in range(nb_aliments):
