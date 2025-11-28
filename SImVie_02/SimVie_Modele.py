@@ -72,7 +72,7 @@ class Creature:
         # --- 3. ORIENTATION ---
 
         # Différence gauche-droite → rotation vers le côté le plus odorant
-        delta_orientation = (actif_d - actif_g) * 8
+        delta_orientation = (actif_d - actif_g) * 20
         # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
         self.orientation += delta_orientation + random.uniform(-1, 1)
 

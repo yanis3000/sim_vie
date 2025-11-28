@@ -131,11 +131,11 @@ class Capteur:
             for neurone, valeur in zip(self.olfactif_droite, [stimuli_nourriture[1] for _ in range(len(self.olfactif_droite))]):
                 neurone.actif = random.random() < valeur
 
-        for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.vomeronasal_gauche))]):
-            neurone.actif = random.random() < valeur
+        # for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.vomeronasal_gauche))]):
+        #     neurone.actif = random.random() < valeur
 
-        for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.vomeronasal_droite))]):
-            neurone.actif = random.random() < valeur
+        # for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.vomeronasal_droite))]):
+        #     neurone.actif = random.random() < valeur
 
 class GanglionOlfactif:
 
