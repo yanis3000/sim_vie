@@ -20,13 +20,21 @@ class Pattes:
             neurone = Neurone(seuil=0.8)
             self.moteurs_droite.append(neurone)
 
-        for gg in ganglions.neurone_gauche:
+        for gog in ganglions.neurone_olf_gauche:
             for m in random.sample(self.moteurs_gauche, k=2):
-                gg.connecter_a(m, 0.5)
+                gog.connecter_a(m, 0.5)
 
-        for gd in ganglions.neurone_droite:
+        for god in ganglions.neurone_olf_droite:
             for m in random.sample(self.moteurs_droite, k=2):
-                gd.connecter_a(m, 0.5)
+                god.connecter_a(m, 0.5)
+
+        for gvg in ganglions.neurone_vomero_gauche:
+            for m in random.sample(self.moteurs_gauche, k=2):
+                gvg.connecter_a(m, 0.5)
+
+        for gvd in ganglions.neurone_vomero_droite:
+            for m in random.sample(self.moteurs_droite, k=2):
+                gvd.connecter_a(m, 0.5)
 
     
     def activer(self):

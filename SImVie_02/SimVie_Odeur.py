@@ -26,7 +26,7 @@ class Glande() :
     def emettre_pheromones(self, valeur_envie, position):
         self.position = position
         self.valeur_envie = valeur_envie
-        self.rayon_senteur = valeur_envie * 5
+        self.rayon_senteur = valeur_envie / 25
 
 
 # ------------------------------------------------------------
@@ -68,7 +68,7 @@ class Nez:
 
             d = distance(self.position, a.position)
 
-            if d < (self.portee_olfactive):
+            if d < (self.portee_olfactive + a.rayon_senteur):
 
                 ang = angle_relatif(self.position, a.position)
                 rel = (ang - self.orientation + 540) % 360 - 180
@@ -107,18 +107,18 @@ class Capteur:
         self.olfactif_droite = []
 
         for i in range(neurone_olfactif):
-            neurone = Neurone(seuil=0.5)
+            neurone = Neurone(seuil = random.uniform(0.3, 0.6))
             self.olfactif_gauche.append(neurone)
-            neurone = Neurone(seuil=0.5)
+            neurone = Neurone(seuil = random.uniform(0.3, 0.6))
             self.olfactif_droite.append(neurone)
 
         self.vomeronasal_gauche = []
         self.vomeronasal_droite = []
 
         for i in range(neurone_vomeronasal):
-            neurone = Neurone(seuil=0.3)
+            neurone = Neurone(seuil = random.uniform(0.3, 0.6))
             self.vomeronasal_gauche.append(neurone)
-            neurone = Neurone(seuil=0.3)
+            neurone = Neurone(seuil = random.uniform(0.3, 0.6))
             self.vomeronasal_droite.append(neurone)
 
         self.ganglion = GanglionOlfactif(self.olfactif_gauche, self.olfactif_droite, self.vomeronasal_gauche, self.vomeronasal_droite)
@@ -127,56 +127,72 @@ class Capteur:
         # Activer les capteurs
         if ( stimuli_nourriture[0] > stimuli_nourriture[1] ):
             for neurone, valeur in zip(self.olfactif_gauche, [stimuli_nourriture[0] for _ in range(len(self.olfactif_gauche))]):
-                neurone.actif = random.random() < valeur
+                neurone.actif = neurone.seuil < valeur
         elif ( stimuli_nourriture[0] < stimuli_nourriture[1]  ):
             for neurone, valeur in zip(self.olfactif_droite, [stimuli_nourriture[1] for _ in range(len(self.olfactif_droite))]):
-                neurone.actif = random.random() < valeur
+                neurone.actif = neurone.seuil < valeur
 
-        # for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.vomeronasal_gauche))]):
-        #     neurone.actif = random.random() < valeur
+        if ( stimuli_pheromone[0] > stimuli_pheromone[1] ) :
+            for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.vomeronasal_gauche))]):
+                neurone.actif = neurone.seuil < valeur
 
-        # for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.vomeronasal_droite))]):
-        #     neurone.actif = random.random() < valeur
+        elif ( stimuli_nourriture[0] < stimuli_pheromone[1] ) :
+            for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.vomeronasal_droite))]):
+                neurone.actif = neurone.seuil < valeur
 
 class GanglionOlfactif:
 
     def __init__(self, olfactif_gauche, olfactif_droite, vomeronasal_gauche, vomeronasal_droite, nb_neurone = 8):
 
-        self.neurone_gauche = []
-        self.neurone_droite = []
-        self.actif = True
+        self.neurone_olf_gauche = []
+        self.neurone_olf_droite = []
+        self.neurone_vomero_gauche = []
+        self.neurone_vomero_droite = []
+
+        self.olfactif_actif = True
+        self.vomeronasal_actif = True
 
         for i in range(nb_neurone):
             neurone = Neurone(seuil=1.0)
-            self.neurone_gauche.append(neurone)
+            self.neurone_olf_gauche.append(neurone)
             neurone = Neurone(seuil=1.0)
-            self.neurone_droite.append(neurone)
+            self.neurone_olf_droite.append(neurone)
+            neurone = Neurone(seuil=1.0)
+            self.neurone_vomero_gauche.append(neurone)
+            neurone = Neurone(seuil=1.0)
+            self.neurone_vomero_droite.append(neurone)
 
         # Connexions entre couches
         for o in olfactif_gauche:
-            for g in random.sample(self.neurone_gauche, k = math.ceil(len(self.neurone_gauche) * 0.9)):
+            for g in random.sample(self.neurone_olf_gauche, k = math.ceil(len(self.neurone_olf_gauche) * 0.9)):
                 o.connecter_a(g, 0.5)
-            for g in random.sample(self.neurone_droite, k = math.ceil(len(self.neurone_droite) * 0.1)):
+            for g in random.sample(self.neurone_olf_droite, k = math.ceil(len(self.neurone_olf_droite) * 0.1)):
                 o.connecter_a(g, 0.5)
         for o in olfactif_droite:
-            for g in random.sample(self.neurone_gauche, k = math.ceil(len(self.neurone_gauche) * 0.1)):
+            for g in random.sample(self.neurone_olf_gauche, k = math.ceil(len(self.neurone_olf_gauche) * 0.1)):
                 o.connecter_a(g, 0.5)
-            for g in random.sample(self.neurone_droite, k = math.ceil(len(self.neurone_droite) * 0.9)):
+            for g in random.sample(self.neurone_olf_droite, k = math.ceil(len(self.neurone_olf_droite) * 0.9)):
                 o.connecter_a(g, 0.5)
 
         for v in vomeronasal_gauche:
-            for g in random.sample(self.neurone_gauche, k = math.ceil(len(self.neurone_gauche) * 0.9)):
+            for g in random.sample(self.neurone_vomero_gauche, k = math.ceil(len(self.neurone_vomero_gauche) * 0.9)):
                 v.connecter_a(g, 0.5)
-            for g in random.sample(self.neurone_droite, k = math.ceil(len(self.neurone_droite) * 0.1)):
+            for g in random.sample(self.neurone_vomero_droite, k = math.ceil(len(self.neurone_vomero_droite) * 0.1)):
                 v.connecter_a(g, 0.5)
         for v in vomeronasal_droite:
-            for g in random.sample(self.neurone_gauche, k = math.ceil(len(self.neurone_gauche) * 0.1)):
+            for g in random.sample(self.neurone_vomero_gauche, k = math.ceil(len(self.neurone_vomero_gauche) * 0.1)):
                 v.connecter_a(g, 0.5)
-            for g in random.sample(self.neurone_droite, k = math.ceil(len(self.neurone_droite) * 0.9)):
+            for g in random.sample(self.neurone_vomero_droite, k = math.ceil(len(self.neurone_vomero_droite) * 0.9)):
                 v.connecter_a(g, 0.5)
         
     def propager(self):
-        for n in self.neurone_droite:
-            n.evaluer()
-        for n in self.neurone_gauche:
-            n.evaluer()
+        if( self.olfactif_actif):
+            for n in self.neurone_olf_gauche:
+                n.evaluer()
+            for n in self.neurone_olf_droite:
+                n.evaluer()
+        if ( self.vomeronasal_actif):
+            for n in self.neurone_vomero_gauche:
+                n.evaluer()
+            for n in self.neurone_vomero_droite:
+                n.evaluer()

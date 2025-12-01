@@ -25,6 +25,7 @@ class Vue:
 
         self.largeur = 1000
         self.hauteur = 800
+        
 
         # ========================================================
         # FRAME PRINCIPAL (GAUCHE = config, DROITE = monde)
@@ -70,6 +71,17 @@ class Vue:
         self.entree_hauteur = tk.Entry(self.frame_config, width=10, justify="center")
         self.entree_hauteur.insert(0, "800")
         self.entree_hauteur.pack(anchor="w")
+
+        
+        tk.Label(self.frame_config, text="Orientation :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
+        self.entree_orientation = tk.Entry(self.frame_config, width=10, justify="center")
+        self.entree_orientation.insert(0, "20")
+        self.entree_orientation.pack(anchor="w")
+
+        tk.Label(self.frame_config, text="Vitesse :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
+        self.entree_vitesse = tk.Entry(self.frame_config, width=10, justify="center")
+        self.entree_vitesse.insert(0, "10")
+        self.entree_vitesse.pack(anchor="w")
 
         # --- Bouton relancer ---
         self.bouton_seed = tk.Button(self.frame_config, text="Relancer simulation",
@@ -163,7 +175,9 @@ class Vue:
             "nb_creatures": int(self.entree_nb_creatures.get()),
             "nb_aliments": int(self.entree_nb_aliments.get()),
             "largeur": int(self.entree_largeur.get()),
-            "hauteur": int(self.entree_hauteur.get())
+            "hauteur": int(self.entree_hauteur.get()),
+            "orientation": int(self.entree_orientation.get()),
+            "vitesse": int(self.entree_vitesse.get())
         }
         self.controleur.reinitialiser_simulation(params)
 
@@ -184,6 +198,7 @@ class Vue:
             self.creer_aliment(aliment)
         for creature in self.modele.creatures:
             self.creer_creature(creature)
+            
         self.maj_visibilite()
 
     def creer_aliment(self, aliment):
@@ -208,6 +223,8 @@ class Vue:
     def creer_creature(self, creature):
         x, y = creature.position
         r = creature.taille
+        creature.deg_orientation = int(self.entree_orientation.get())
+        creature.vitesse = int(self.entree_vitesse.get())
         couleur = self.couleur_energie(creature.energie)
 
         # Corps ovale orienté
@@ -251,7 +268,7 @@ class Vue:
 
         for creature in self.modele.creatures:
             self.maj_creature(creature)
-
+            
         self.mettre_a_jour_stats()
 
     def maj_creature(self, creature):

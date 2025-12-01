@@ -2,6 +2,7 @@
 # SimVie_Modele.py
 # ------------------------------------------------------------
 import random, math
+from SimVie_Utils import Utils as ut
 from SimVie_Neurone import SystemeNerveux
 from SimVie_Odeur import Glande, Aliment, Nez
 from SimVie_Moteur import Pattes
@@ -25,17 +26,28 @@ def angle_relatif(src, cible):
 # ------------------------------------------------------------
 class Creature:
     def __init__(self, position, taille):
+        # --- Param f_quad --- #
+        # Santé
+        origine = (0, 10) ## 10 = valeur de la santé au début de la simulation
+        sommet = (600, 100) ## 100 = valeur de la santé après 600 cycles.
+        self.sante_quad = ut.param_fonction_quad(origine, sommet)
+
+        # --- Jauges besoins --- #
+        self.sante = 100
+        self.energie = 100
+        self.satiete = 100
+        self.envie_reproduction = random.randint(40, 70) * self.sante
+
         self.position = position
         self.taille = taille
         self.orientation = random.uniform(0, 360)
         self.vitesse = 10  
-        self.energie = 100
         self.narines = Nez(self.taille, random.uniform(0.8, 1.2), self.position, self.orientation)
         self.cerveau = SystemeNerveux()
         self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation)
-
-        self.envie_reproduction = random.randint(10, 100)
         self.glande = Glande(self.envie_reproduction, self.position)
+
+        self.deg_orientation = 20
 
     # --- Olfaction directionnelle ---
     def percevoir(self, aliments, glandes):
@@ -72,7 +84,7 @@ class Creature:
         # --- 3. ORIENTATION ---
 
         # Différence gauche-droite → rotation vers le côté le plus odorant
-        delta_orientation = (actif_d - actif_g) * 20
+        delta_orientation = (actif_d - actif_g) * self.deg_orientation
         # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
         self.orientation += delta_orientation + random.uniform(-1, 1)
 
@@ -112,6 +124,8 @@ class Modele:
         self.aliments = []
         self.creatures = []
         self.glandes = []
+        self.degree = 20
+        self.vitesse = 10
         self.creer_environnement(nb_aliments, nb_creatures)
 
     def creer_environnement(self, nb_aliments, nb_creatures):
@@ -123,6 +137,8 @@ class Modele:
             pos = (random.randint(0, self.largeur_terrain),
                    random.randint(0, self.hauteur_terrain))
             c = Creature(pos, random.randint(15, 40))
+            c.deg_orientation = self.degree
+            c.vitesse = self.vitesse
             self.creatures.append(c)
             self.glandes.append(c.glande)
 
@@ -137,4 +153,6 @@ class Modele:
         self.hauteur = params["hauteur"]
         self.aliments = []
         self.creatures = []
+        self.degree = params["orientation"]
+        self.vitesse = params["vitesse"]
         self.creer_environnement(params["nb_aliments"],params["nb_creatures"])
