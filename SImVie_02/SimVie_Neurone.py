@@ -90,8 +90,8 @@ class SystemeNerveux:
         rep1 = []
         rep2 = []
         for i in range(len(self.jauge)):
-            rep1.append(self.rules[i] if self.jauge[i] < self.seuil_olfactif[i] else not self.rules[i])
-            rep2.append(self.rules[i] if self.jauge[i] < self.seuil_vomeronasal[i] else not self.rules[i])
+            rep1.append(self.rules[i] if self.jauge[i] <= self.seuil_olfactif[i] else not self.rules[i])
+            rep2.append(self.rules[i] if self.jauge[i] <= self.seuil_vomeronasal[i] else not self.rules[i])
         self.ganglions_olfactifs = all(rep1)
         self.ganglions_vomeronasal = all(rep2)
         
