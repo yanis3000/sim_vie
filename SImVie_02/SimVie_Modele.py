@@ -45,7 +45,7 @@ class Creature:
         self.orientation = random.uniform(0, 360)
         self.vitesse = 10  
         self.narines = Nez(self.taille, random.uniform(0.8, 1.2), self.position, self.orientation)
-        self.cerveau = SystemeNerveux()
+        self.cerveau = SystemeNerveux(self.narines.capteur.ganglion.olfactif_actif, self.narines.capteur.ganglion.vomeronasal_actif)
         self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation) 
         self.glande = Glande(self.envie_reproduction, self.position)
 

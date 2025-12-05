@@ -50,14 +50,26 @@ class Neurone():
 class SystemeNerveux:
     """Réseau neuronal hiérarchique :
        capteurs -> ganglions sensoriels -> interneurones -> ganglions moteurs -> moteurs"""
-    def __init__(self):
-        self.jauge_sante = 10
-        self.jauge_satiete = 10
-        self.jauge_fatigue = 10
+    def __init__(self, ganglions_olfactifs, ganglions_vomeronasal):
+
+        # --- satiété, énergie, santé, reproduction --- #
+
+        self.seuil_olfactif = [50, 5, 10, 0]
+        self.seuil_vomeronasal = [30, 20, 30, 20]
+        self.rules = (True, False, False, False)
+        self.jauge = [40, 10, 0, 30]
+
+        self.ganglions_olfactifs = ganglions_olfactifs
+
+        self.ganglions_vomeronasal = ganglions_vomeronasal
+
 
     # --- Simulation d'un cycle d'activité ---
     def cycle(self, creature, stimuli_nourriture, stimuli_pheromone):
         """stimulations : liste de valeurs entre 0 et 1 pour chaque capteur"""
+
+        # self.maj_valeur(creature)
+        self.maj_ganglions()
 
         creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
         # Propagation à travers le réseau
@@ -66,3 +78,21 @@ class SystemeNerveux:
         activation = creature.pattes.activer()
 
         return activation
+    
+
+    def maj_valeur(self, creature):
+        self.jauge = [creature.sante,
+                      creature.satiete,
+                      creature.energie,
+                      creature.envie_reproduction]
+
+    def maj_ganglions(self):
+        rep1 = []
+        rep2 = []
+        for i in range(len(self.jauge)):
+            rep1.append(self.rules[i] if self.jauge[i] < self.seuil_olfactif[i] else not self.rules[i])
+            rep2.append(self.rules[i] if self.jauge[i] < self.seuil_vomeronasal[i] else not self.rules[i])
+        self.ganglions_olfactifs = all(rep1)
+        self.ganglions_vomeronasal = all(rep2)
+        
+
