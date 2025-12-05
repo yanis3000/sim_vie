@@ -19,21 +19,23 @@ def angle_relatif(src, cible):
     dy = cible[1] - src[1]
     return math.degrees(math.atan2(dy, dx))
 
-
-
 # ------------------------------------------------------------
 # Créature : perçoit, agit, se nourrit
 # ------------------------------------------------------------
 class Creature:
     def __init__(self, position, taille):
         # --- Param f_quad --- #
+
+        self.count_cycle = 0
+        
         # Santé
         origine = (0, 10) ## 10 = valeur de la santé au début de la simulation
         sommet = (600, 100) ## 100 = valeur de la santé après 600 cycles.
         self.sante_quad = ut.param_fonction_quad(origine, sommet)
 
         # --- Jauges besoins --- #
-        self.sante = 100
+        a, b, c = self.sante_quad
+        self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c
         self.energie = 100
         self.satiete = 100
         self.envie_reproduction = random.randint(40, 70) * self.sante
@@ -44,7 +46,7 @@ class Creature:
         self.vitesse = 10  
         self.narines = Nez(self.taille, random.uniform(0.8, 1.2), self.position, self.orientation)
         self.cerveau = SystemeNerveux()
-        self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation)
+        self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation) 
         self.glande = Glande(self.envie_reproduction, self.position)
 
         self.deg_orientation = 20
@@ -113,6 +115,16 @@ class Creature:
         self.energie = min(100, self.energie + aliment.valeur_nourriture)
         aliments.remove(aliment)
 
+    def maj_jauges(self):
+        self.count_cycle += 1
+
+        # maj Santé
+        a, b, c = self.sante_quad
+        self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c
+
+        return self.sante > 0
+
+
 # ------------------------------------------------------------
 # Modèle général
 # ------------------------------------------------------------
@@ -123,6 +135,7 @@ class Modele:
         self.hauteur_terrain = hauteur_terrain
         self.aliments = []
         self.creatures = []
+        self.creatures_to_delete = []
         self.glandes = []
         self.degree = 20
         self.vitesse = 10
@@ -146,6 +159,11 @@ class Modele:
         for c in self.creatures:
             c.glande.emettre_pheromones(c.envie_reproduction, c.position)
             c.agir(self.aliments, self.glandes)
+            if c.maj_jauges() == False:
+                self.creatures_to_delete.append(c)
+        for c in self.creatures_to_delete:
+            self.creatures.remove(c)
+        self.creatures_to_delete = []
 
     def reinitialiser_simulation(self, params):
         random.seed(params["seed"])

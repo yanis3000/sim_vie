@@ -17,7 +17,7 @@ class Utils:
         xs, ys = sommet
 
         a = (yo - ys) / math.pow((xo - xs), 2) 
-        b = xs * (2 * a)
+        b = -1 * (xs * (2 * a))
         c = yo
 
         return (a, b, c) 
