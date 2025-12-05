@@ -51,14 +51,15 @@ class SystemeNerveux:
     """Réseau neuronal hiérarchique :
        capteurs -> ganglions sensoriels -> interneurones -> ganglions moteurs -> moteurs"""
     def __init__(self):
-        pass
+        self.jauge_sante = 10
+        self.jauge_satiete = 10
+        self.jauge_fatigue = 10
 
     # --- Simulation d'un cycle d'activité ---
     def cycle(self, creature, stimuli_nourriture, stimuli_pheromone):
         """stimulations : liste de valeurs entre 0 et 1 pour chaque capteur"""
 
         creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
-
         # Propagation à travers le réseau
         creature.narines.capteur.ganglion.propager()
 
