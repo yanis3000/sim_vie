@@ -35,10 +35,10 @@ class Creature:
 
         # --- Jauges besoins --- #
         a, b, c = self.sante_quad
-        self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c
+        self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c       # Entre 0 et 100
         self.energie = 100
         self.satiete = 100
-        self.envie_reproduction = random.randint(40, 70) * self.sante
+        self.envie_reproduction = self.sante                       
 
         self.position = position
         self.taille = taille
@@ -101,9 +101,9 @@ class Creature:
         # --- 5. MÉTABOLISME ---
         # Chaque déplacement consomme de l'énergie.
         # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
-        self.energie -= 0.05 + (0.2 * intensite)
-        if self.energie < 0:
-            self.energie = 0
+        self.satiete -= 0.05 + (0.2 * intensite)
+        if self.satiete < 0:
+            self.satiete = 0
 
         # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
         # Si la créature touche un aliment, elle le consomme.
@@ -112,7 +112,7 @@ class Creature:
                 self.manger(a, aliments)
 
     def manger(self, aliment, aliments):
-        self.energie = min(100, self.energie + aliment.valeur_nourriture)
+        self.satiete = min(100, self.satiete + aliment.valeur_nourriture)
         aliments.remove(aliment)
 
     def maj_jauges(self):
@@ -121,6 +121,9 @@ class Creature:
         # maj Santé
         a, b, c = self.sante_quad
         self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c
+
+        # maj Reproduction
+        self.envie_reproduction = self.sante
 
         return self.sante > 0
 
