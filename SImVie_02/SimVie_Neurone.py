@@ -10,7 +10,7 @@ class Neurone():
        à plusieurs autres neurones (axones)."""
     def __init__(self, seuil=1.0):
         self.refractaire = 0  # temps restant avant de pouvoir tirer à nouveau
-        self.delai_refractaire = 0  
+        self.delai_refractaire = 0
         self.seuil = seuil # stimulation nécessaire pour que le neurone s'active
         self.entrees = []       # [(neurone_source, poids)]
         self.sorties = []       # [(neurone_cible, poids)]
@@ -54,7 +54,7 @@ class SystemeNerveux:
 
         # --- satiété, énergie, santé, reproduction --- #
 
-        self.seuil_olfactif = [80, 5, 5, 0]
+        self.seuil_olfactif = [95, 5, 5, 0]
         self.seuil_vomeronasal = [100, 20, 30, 20]
         self.rules = (True, False, False, False)
         self.jauge = []
@@ -71,7 +71,9 @@ class SystemeNerveux:
         self.maj_valeur(creature)
         self.maj_ganglions(creature)
 
-        creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
+        droite, gauche = creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
+
+        creature.narines.maj_stimuli(droite, gauche)
         # Propagation à travers le réseau
         creature.narines.capteur.ganglion.propager()
 
@@ -93,6 +95,6 @@ class SystemeNerveux:
             rep1.append(self.rules[i] if self.jauge[i] <= self.seuil_olfactif[i] else not self.rules[i])
             rep2.append(self.rules[i] if self.jauge[i] <= self.seuil_vomeronasal[i] else not self.rules[i])
         creature.narines.capteur.ganglion.olfactif_actif = all(rep1)
-        creature.narines.capteur.ganglion.vomeronasal_actif = all(rep2)
+        creature.narines.capteur.ganglion.vomeronasal_actif = False
         
 

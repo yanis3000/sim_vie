@@ -53,14 +53,11 @@ class Nez:
         self.hemi_pheromone_gauche = 0
 
         self.sensibilite_olfactive = sensibilite_olfactive
-        self.portee_olfactive = (150 + math.sqrt(taille_creature) * 30) * self.sensibilite_olfactive
+        self.portee_olfactive = (20 + math.sqrt(taille_creature) * 30) * self.sensibilite_olfactive
 
         self.capteur = Capteur()
 
     def sentir(self, aliments, glandes, ma_glande):
-
-        self.hemi_nourriture_gauche = 0
-        self.hemi_nourriture_droite = 0
 
         self.hemi_pheromone_droite = 0
         self.hemi_pheromone_gauche = 0
@@ -75,9 +72,9 @@ class Nez:
                 rel = (ang - self.orientation + 540) % 360 - 180
                 odeur = a.valeur_nourriture / (d + 1)
 
-                if -90 < rel < 0:
+                if -180 <= rel < 0:
                     self.hemi_nourriture_gauche += odeur
-                elif 0 <= rel < 90:
+                elif 0 <= rel < 180:
                     self.hemi_nourriture_droite += odeur
 
         for g in glandes:
@@ -99,9 +96,13 @@ class Nez:
         self.hemi_nourriture_droite = min(1.0, self.hemi_nourriture_droite / 10) 
         self.hemi_pheromone_gauche = min(1.0, self.hemi_pheromone_gauche / 10) 
         self.hemi_pheromone_droite = min(1.0, self.hemi_pheromone_droite / 10) 
+
+    def maj_stimuli(self, droite_o, gauche_o):
+        if droite_o :
+            self.hemi_nourriture_droite = 0
+        if gauche_o :
+            self.hemi_nourriture_gauche = 0
     
-
-
 class Capteur:
     def __init__(self, neurone_olfactif=8, neurone_vomeronasal=8):
         self.olfactif_gauche = []
@@ -125,21 +126,29 @@ class Capteur:
         self.ganglion = GanglionOlfactif(self.olfactif_gauche, self.olfactif_droite, self.vomeronasal_gauche, self.vomeronasal_droite)
 
     def activer(self, stimuli_nourriture, stimuli_pheromone):
+        droite_o = False
+        gauche_o = False
+        
         # Activer les capteurs
         if ( stimuli_nourriture[0] > stimuli_nourriture[1] ):
             for neurone, valeur in zip(self.olfactif_gauche, [stimuli_nourriture[0] for _ in range(len(self.olfactif_gauche))]):
-                neurone.actif = neurone.seuil < valeur
-        elif ( stimuli_nourriture[0] < stimuli_nourriture[1]  ):
+                if ( neurone.seuil < valeur ):
+                    neurone.actif = True
+                    gauche_o = True
+        elif ( stimuli_nourriture[0] <= stimuli_nourriture[1]  ):
             for neurone, valeur in zip(self.olfactif_droite, [stimuli_nourriture[1] for _ in range(len(self.olfactif_droite))]):
-                neurone.actif = neurone.seuil < valeur
-
+                if ( neurone.seuil < valeur):
+                    neurone.actif = True
+                    droite_o = True
         if ( stimuli_pheromone[0] > stimuli_pheromone[1] ) :
             for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.vomeronasal_gauche))]):
                 neurone.actif = neurone.seuil < valeur
 
-        elif ( stimuli_nourriture[0] < stimuli_pheromone[1] ) :
+        elif ( stimuli_nourriture[0] <= stimuli_pheromone[1] ) :
             for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.vomeronasal_droite))]):
                 neurone.actif = neurone.seuil < valeur
+
+        return (droite_o, gauche_o)
 
 class GanglionOlfactif:
 
@@ -192,8 +201,18 @@ class GanglionOlfactif:
                 n.evaluer()
             for n in self.neurone_olf_droite:
                 n.evaluer()
+        else :
+            for n in self.neurone_olf_gauche:
+                n.actif = False
+            for n in self.neurone_olf_droite:
+                n.actif = False
         if ( self.vomeronasal_actif):
             for n in self.neurone_vomero_gauche:
                 n.evaluer()
             for n in self.neurone_vomero_droite:
                 n.evaluer()
+        else :
+            for n in self.neurone_vomero_gauche:
+                n.actif = False
+            for n in self.neurone_vomero_droite:
+                n.actif = False
