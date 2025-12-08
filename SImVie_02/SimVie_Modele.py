@@ -101,7 +101,7 @@ class Creature:
         # --- 5. MÉTABOLISME ---
         # Chaque déplacement consomme de l'énergie.
         # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
-        self.satiete -= 0.05 + (0.2 * intensite)
+        self.satiete -= 0.05 + ((0.2 * intensite) + (0.01 * self.vitesse))
         if self.satiete < 0:
             self.satiete = 0
 
@@ -112,8 +112,9 @@ class Creature:
                 self.manger(a, aliments)
 
     def manger(self, aliment, aliments):
-        self.satiete = min(100, self.satiete + aliment.valeur_nourriture)
-        aliments.remove(aliment)
+        if self.satiete < 50:
+            self.satiete = min(100, self.satiete + aliment.valeur_nourriture)
+            aliments.remove(aliment)
 
     def maj_jauges(self):
         self.count_cycle += 1

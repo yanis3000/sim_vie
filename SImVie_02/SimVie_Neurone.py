@@ -54,10 +54,10 @@ class SystemeNerveux:
 
         # --- satiété, énergie, santé, reproduction --- #
 
-        self.seuil_olfactif = [50, 5, 10, 0]
-        self.seuil_vomeronasal = [30, 20, 30, 20]
+        self.seuil_olfactif = [50, 5, 5, 0]
+        self.seuil_vomeronasal = [100, 20, 30, 20]
         self.rules = (True, False, False, False)
-        self.jauge = [40, 10, 0, 30]
+        self.jauge = []
 
         self.ganglions_olfactifs = ganglions_olfactifs
 
@@ -68,7 +68,7 @@ class SystemeNerveux:
     def cycle(self, creature, stimuli_nourriture, stimuli_pheromone):
         """stimulations : liste de valeurs entre 0 et 1 pour chaque capteur"""
 
-        # self.maj_valeur(creature)
+        self.maj_valeur(creature)
         self.maj_ganglions()
 
         creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
@@ -81,9 +81,9 @@ class SystemeNerveux:
     
 
     def maj_valeur(self, creature):
-        self.jauge = [creature.sante,
-                      creature.satiete,
+        self.jauge = [creature.satiete,
                       creature.energie,
+                      creature.sante,
                       creature.envie_reproduction]
 
     def maj_ganglions(self):
