@@ -2,7 +2,7 @@ from SimVie_Neurone import Neurone
 import math, random
 
 class Pattes:
-    def __init__(self, ganglions, position, orientation, nb_moteurs = 16):
+    def __init__(self, ganglions, position, orientation, nb_moteurs = 18):
         
         self.position = position
         self.orientation = orientation

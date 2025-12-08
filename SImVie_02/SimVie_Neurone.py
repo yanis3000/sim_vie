@@ -69,7 +69,7 @@ class SystemeNerveux:
         """stimulations : liste de valeurs entre 0 et 1 pour chaque capteur"""
 
         self.maj_valeur(creature)
-        self.maj_ganglions()
+        self.maj_ganglions(creature)
 
         creature.narines.capteur.activer(stimuli_nourriture, stimuli_pheromone)
         # Propagation à travers le réseau
@@ -86,13 +86,13 @@ class SystemeNerveux:
                       creature.sante,
                       creature.envie_reproduction]
 
-    def maj_ganglions(self):
+    def maj_ganglions(self, creature):
         rep1 = []
         rep2 = []
         for i in range(len(self.jauge)):
             rep1.append(self.rules[i] if self.jauge[i] <= self.seuil_olfactif[i] else not self.rules[i])
             rep2.append(self.rules[i] if self.jauge[i] <= self.seuil_vomeronasal[i] else not self.rules[i])
-        self.ganglions_olfactifs = all(rep1)
-        self.ganglions_vomeronasal = all(rep2)
+        creature.narines.capteur.ganglion.olfactif_actif = all(rep1)
+        creature.narines.capteur.ganglion.vomeronasal_actif = all(rep2)
         
 
