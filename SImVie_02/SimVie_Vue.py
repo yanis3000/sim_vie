@@ -305,6 +305,17 @@ class Vue:
                 self.canevas.delete(self.id_aliments[aliment])
                 del self.id_aliments[aliment], self.id_odeur[aliment]
 
+
+        for creature in list(self.id_creatures.keys()):
+            if creature not in self.modele.creatures:
+                self.canevas.delete(self.id_phero[creature])
+                self.canevas.delete(self.id_olfaction[creature])
+                self.canevas.delete(self.id_pointes[creature])
+                self.canevas.delete(self.id_creatures[creature])
+                del self.id_creatures[creature], self.id_olfaction[creature], self.id_phero[creature], self.id_pointes[creature]
+
+
+
         for creature in self.modele.creatures:
             self.maj_creature(creature)
             
@@ -359,6 +370,8 @@ class Vue:
             yr = y + (px * math.sin(angle) + py * math.cos(angle))
             pts.extend((xr, yr))
         return pts
+    
+    # maj des valeur de jauges
 
     def mettre_a_jour_stats(self):
         nb_creatures = len(self.modele.creatures)
@@ -374,6 +387,7 @@ class Vue:
         self.jauge_energie.config(text="Jauge énergie : {0} / 100", font=("Arial", 10, "bold"))
         self.jauge_sante.config(text="Jauge santé : {0} / 100", font=("Arial", 10, "bold"))
         self.jauge_reproduction.config(text="Envie de reproduction : {0} / 100", font=("Arial", 10, "bold"))
+
 
     def couleur_energie(self, energie):
         e = max(0, min(energie, 100)) / 100
