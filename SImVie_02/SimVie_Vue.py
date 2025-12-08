@@ -2,6 +2,7 @@
 # SimVie_Vue.py  (avec affichage sélectif et pointes avant)
 # ------------------------------------------------------------
 import tkinter as tk
+from tkinter import ttk
 import math
 import random
 import statistics
@@ -25,13 +26,17 @@ class Vue:
 
         self.largeur = 1000
         self.hauteur = 800
-        
+
 
         # ========================================================
         # FRAME PRINCIPAL (GAUCHE = config, DROITE = monde)
         # ========================================================
         self.frame_principal = tk.Frame(self.root)
         self.frame_principal.pack(fill=tk.BOTH, expand=True)
+
+
+ 
+
 
         # --------------------------------------------------------
         # 1️⃣ FRAME DE CONFIGURATION
@@ -40,87 +45,121 @@ class Vue:
             self.frame_principal, width=200, bg="#dde7ec",
             padx=10, pady=10, relief=tk.GROOVE, borderwidth=2
         )
+
+        style = ttk.Style()
+        style.configure("bgCustom.TFrame", background="#dde7ec")
+
+        # ===================== Création du NoteBook =================================
+        self.notebook = ttk.Notebook(self.frame_config, width=250, height=800, style="bgCustom.TFrame")
+
+        # ===================== Style (background) Onglets =================================
         self.frame_config.pack(side=tk.LEFT, fill=tk.Y)
-        self.frame_config.pack_propagate(False)
+        self.frame_config.pack_propagate(True)
+
+        # ======================= 1er Onglet (CONFIG) ===================================
+        self.onlet_config = ttk.Frame(self.notebook, style="bgCustom.TFrame")
+        self.notebook.add(self.onlet_config, text="CONFIG")
+
 
         # --- Configuration de base ---
-        tk.Label(self.frame_config, text="⚙️  Configuration", bg="#dde7ec", font=("Arial", 12, "bold")).pack(pady=5)
+        tk.Label(self.onlet_config, text="⚙️  Configuration", bg="#dde7ec", font=("Arial", 12, "bold")).pack(pady=5)
 
-        tk.Label(self.frame_config, text="Seed aléatoire :", bg="#dde7ec").pack(anchor="w", pady=3)
-        self.entree_seed = tk.Entry(self.frame_config, width=10, justify="center")
+        tk.Label(self.onlet_config, text="Seed aléatoire :", bg="#dde7ec").pack(anchor="w", pady=3)
+        self.entree_seed = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_seed.pack(anchor="w")
         self.entree_seed.insert(0, "0")
 
         # ✅ Nouveaux champs configurables
-        tk.Label(self.frame_config, text="Créatures :", bg="#dde7ec").pack(anchor="w", pady=(8, 0))
-        self.entree_nb_creatures = tk.Entry(self.frame_config, width=10, justify="center")
+        tk.Label(self.onlet_config, text="Créatures :", bg="#dde7ec").pack(anchor="w", pady=(8, 0))
+        self.entree_nb_creatures = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_nb_creatures.insert(0, "10")
         self.entree_nb_creatures.pack(anchor="w")
 
-        tk.Label(self.frame_config, text="Aliments :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_nb_aliments = tk.Entry(self.frame_config, width=10, justify="center")
+        tk.Label(self.onlet_config, text="Aliments :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
+        self.entree_nb_aliments = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_nb_aliments.insert(0, "10")
         self.entree_nb_aliments.pack(anchor="w")
 
-        tk.Label(self.frame_config, text="Largeur :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_largeur = tk.Entry(self.frame_config, width=10, justify="center")
+        tk.Label(self.onlet_config, text="Largeur :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
+        self.entree_largeur = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_largeur.insert(0, "1000")
         self.entree_largeur.pack(anchor="w")
 
-        tk.Label(self.frame_config, text="Hauteur :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_hauteur = tk.Entry(self.frame_config, width=10, justify="center")
+        tk.Label(self.onlet_config, text="Hauteur :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
+        self.entree_hauteur = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_hauteur.insert(0, "800")
         self.entree_hauteur.pack(anchor="w")
 
         
-        tk.Label(self.frame_config, text="Orientation :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_orientation = tk.Entry(self.frame_config, width=10, justify="center")
+        tk.Label(self.onlet_config, text="Orientation :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
+        self.entree_orientation = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_orientation.insert(0, "20")
         self.entree_orientation.pack(anchor="w")
 
-        tk.Label(self.frame_config, text="Vitesse :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_vitesse = tk.Entry(self.frame_config, width=10, justify="center")
+        tk.Label(self.onlet_config, text="Vitesse :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
+        self.entree_vitesse = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_vitesse.insert(0, "10")
         self.entree_vitesse.pack(anchor="w")
 
         # --- Bouton relancer ---
-        self.bouton_seed = tk.Button(self.frame_config, text="Relancer simulation",
+        self.bouton_seed = tk.Button(self.onlet_config, text="Relancer simulation",
                                      command=self.reinitialiser_simulation)
         self.bouton_seed.pack(pady=8)
 
-        self.label_info = tk.Label(self.frame_config, text="", bg="#dde7ec", fg="#333", wraplength=180)
+        self.label_info = tk.Label(self.onlet_config, text="", bg="#dde7ec", fg="#333", wraplength=180)
         self.label_info.pack(anchor="w", pady=5)
 
         # --- Contrôles dynamiques ---
-        tk.Label(self.frame_config, text="🕹️  Contrôles", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
-        self.bouton_pause = tk.Button(self.frame_config, text="⏸️ Pause", command=self.basculer_pause)
+        tk.Label(self.onlet_config, text="🕹️  Contrôles", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
+        self.bouton_pause = tk.Button(self.onlet_config, text="⏸️ Pause", command=self.basculer_pause)
         self.bouton_pause.pack(fill=tk.X, pady=3)
 
-        frame_vitesse = tk.Frame(self.frame_config, bg="#dde7ec")
+        frame_vitesse = tk.Frame(self.onlet_config, bg="#dde7ec")
         frame_vitesse.pack(fill=tk.X, pady=5)
         tk.Label(frame_vitesse, text="Vitesse :", bg="#dde7ec").pack(side=tk.LEFT)
         tk.Button(frame_vitesse, text="×0.5", width=5, command=self.ralentir).pack(side=tk.LEFT, padx=2)
         tk.Button(frame_vitesse, text="×2", width=5, command=self.accelerer).pack(side=tk.LEFT, padx=2)
 
         # --- Options d’affichage ---
-        tk.Label(self.frame_config, text="👁️  Affichage", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
-        tk.Checkbutton(self.frame_config, text="Afficher odeurs", variable=self.afficher_odeurs,
+        tk.Label(self.onlet_config, text="👁️  Affichage", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
+        tk.Checkbutton(self.onlet_config, text="Afficher odeurs", variable=self.afficher_odeurs,
                        bg="#dde7ec", command=self.maj_visibilite).pack(anchor="w")
-        tk.Checkbutton(self.frame_config, text="Afficher champs sensoriels", variable=self.afficher_champs,
+        tk.Checkbutton(self.onlet_config, text="Afficher champs sensoriels", variable=self.afficher_champs,
                        bg="#dde7ec", command=self.maj_visibilite).pack(anchor="w")
-        tk.Checkbutton(self.frame_config, text="Afficher les phéromones", variable=self.afficher_phero,
+        tk.Checkbutton(self.onlet_config, text="Afficher les phéromones", variable=self.afficher_phero,
                        bg="#dde7ec", command=self.maj_visibilite).pack(anchor="w")
 
         # --- Statistiques dynamiques ---
-        tk.Label(self.frame_config, text="📈 Statistiques", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
-        self.label_tick = tk.Label(self.frame_config, text="Temps simulé : 0", bg="#dde7ec", anchor="w")
+        tk.Label(self.onlet_config, text="📈 Statistiques", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
+        self.label_tick = tk.Label(self.onlet_config, text="Temps simulé : 0", bg="#dde7ec", anchor="w")
         self.label_tick.pack(fill=tk.X)
-        self.label_pop = tk.Label(self.frame_config, text="Créatures : -", bg="#dde7ec", anchor="w")
+        self.label_pop = tk.Label(self.onlet_config, text="Créatures : -", bg="#dde7ec", anchor="w")
         self.label_pop.pack(fill=tk.X)
-        self.label_alim = tk.Label(self.frame_config, text="Aliments : -", bg="#dde7ec", anchor="w")
+        self.label_alim = tk.Label(self.onlet_config, text="Aliments : -", bg="#dde7ec", anchor="w")
         self.label_alim.pack(fill=tk.X)
-        self.label_energie = tk.Label(self.frame_config, text="Énergie moyenne : -", bg="#dde7ec", anchor="w")
+        self.label_energie = tk.Label(self.onlet_config, text="Énergie moyenne : -", bg="#dde7ec", anchor="w")
         self.label_energie.pack(fill=tk.X)
+
+
+        # ======================= 2eme Onglet (JAUGES) ===================================
+        self.onglet_jauges = ttk.Frame(self.notebook, style="bgCustom.TFrame")
+        self.notebook.add(self.onglet_jauges, text="JAUGES")
+
+        tk.Label(self.onglet_jauges, text="📈 Statistiques", bg="#dde7ec", font=("Arial", 12, "bold")).pack(pady=(5))
+        
+        self.jauge_id = tk.Label(self.onglet_jauges, text="Identifiant : -", bg="#dde7ec", anchor="w")
+        self.jauge_id.pack(fill=tk.X)
+        self.jauge_faim = tk.Label(self.onglet_jauges, text="Jauge faim : 0 / 100", bg="#dde7ec", anchor="w")
+        self.jauge_faim.pack(fill=tk.X)
+        self.jauge_energie = tk.Label(self.onglet_jauges, text="Jauge énergie : 0 / 100", bg="#dde7ec", anchor="w")
+        self.jauge_energie.pack(fill=tk.X)
+        self.jauge_sante = tk.Label(self.onglet_jauges, text="Jauge santé : 0 / 100", bg="#dde7ec", anchor="w")
+        self.jauge_sante.pack(fill=tk.X)
+        self.jauge_reproduction = tk.Label(self.onglet_jauges, text="Envie de reproduction : 0 / 100", bg="#dde7ec", anchor="w")
+        self.jauge_reproduction.pack(fill=tk.X)
+
+
+        self.notebook.pack(expand=True, fill=tk.BOTH)
 
         # --------------------------------------------------------
         # 2️⃣ FRAME MONDE (à droite)
@@ -329,6 +368,12 @@ class Vue:
         self.label_pop.config(text=f"Créatures : {nb_creatures}")
         self.label_alim.config(text=f"Aliments : {nb_aliments}")
         self.label_energie.config(text=f"Énergie moyenne : {energie_moy:.1f}")
+
+        self.jauge_id.config(text="Identifiant : {0}", font=("Arial", 10, "bold"))
+        self.jauge_faim.config(text="Jauge faim : {0} / 100", font=("Arial", 10, "bold"))
+        self.jauge_energie.config(text="Jauge énergie : {0} / 100", font=("Arial", 10, "bold"))
+        self.jauge_sante.config(text="Jauge santé : {0} / 100", font=("Arial", 10, "bold"))
+        self.jauge_reproduction.config(text="Envie de reproduction : {0} / 100", font=("Arial", 10, "bold"))
 
     def couleur_energie(self, energie):
         e = max(0, min(energie, 100)) / 100
