@@ -10,7 +10,7 @@ class Neurone():
        à plusieurs autres neurones (axones)."""
     def __init__(self, seuil=1.0):
         self.refractaire = 0  # temps restant avant de pouvoir tirer à nouveau
-        self.delai_refractaire = 3  # durée fixe (en cycles)
+        self.delai_refractaire = random.randint(2, 5)  
         self.seuil = seuil # stimulation nécessaire pour que le neurone s'active
         self.entrees = []       # [(neurone_source, poids)]
         self.sorties = []       # [(neurone_cible, poids)]
