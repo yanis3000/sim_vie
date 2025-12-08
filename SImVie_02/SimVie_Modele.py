@@ -38,7 +38,8 @@ class Creature:
         self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c       # Entre 0 et 100
         self.energie = 100
         self.satiete = 100
-        self.envie_reproduction = self.sante                       
+        self.envie_reproduction = self.sante       
+        self.intensite = 0                
 
         self.position = position
         self.taille = taille
@@ -83,27 +84,33 @@ class Creature:
 
         actif_g, actif_d = self.cerveau.cycle(self, stimuli_nourriture, stimuli_pheromone)
 
-        # --- 3. ORIENTATION ---
+        if actif_g > 0 or actif_d > 0 :
 
-        # Différence gauche-droite → rotation vers le côté le plus odorant
-        delta_orientation = (actif_d - actif_g) * self.deg_orientation
-        # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
-        self.orientation += delta_orientation + random.uniform(-1, 1)
+            # --- 3. ORIENTATION ---
 
-        # --- 4. DÉPLACEMENT ---
-        # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
-        intensite = max(0.05, (actif_g + actif_d) / 2)
-        angle = math.radians(self.orientation)
-        dx = self.vitesse * intensite * math.cos(angle)
-        dy = self.vitesse * intensite * math.sin(angle)
-        self.position = (self.position[0] + dx, self.position[1] + dy)
+            # Différence gauche-droite → rotation vers le côté le plus odorant
+            delta_orientation = (actif_d - actif_g) * self.deg_orientation
+            # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
+            self.orientation += delta_orientation + random.uniform(-1, 1)
+
+            # --- 4. DÉPLACEMENT ---
+            # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
+            self.intensite = max(0.05, (actif_g + actif_d) / 2)
+            angle = math.radians(self.orientation)
+            dx = self.vitesse * self.intensite * math.cos(angle)
+            dy = self.vitesse * self.intensite * math.sin(angle)
+            self.position = (self.position[0] + dx, self.position[1] + dy)
+        else :
+            self.intensite = 0
 
         # --- 5. MÉTABOLISME ---
         # Chaque déplacement consomme de l'énergie.
         # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
-        self.satiete -= 0.05 + ((0.2 * intensite) + (0.01 * self.vitesse))
+        self.satiete -= 0.2 + (0.2 * self.intensite)
         if self.satiete < 0:
             self.satiete = 0
+        elif self.satiete > 100 :
+            self.satiete = 100
 
         # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
         # Si la créature touche un aliment, elle le consomme.
@@ -112,8 +119,8 @@ class Creature:
                 self.manger(a, aliments)
 
     def manger(self, aliment, aliments):
-        if self.satiete < 50:
-            self.satiete = min(100, self.satiete + aliment.valeur_nourriture)
+        if self.narines.capteur.ganglion.olfactif_actif:
+            self.satiete = max(100, self.satiete + aliment.valeur_nourriture)
             aliments.remove(aliment)
 
     def maj_jauges(self):
@@ -144,6 +151,7 @@ class Modele:
         self.degree = 20
         self.vitesse = 10
         self.creer_environnement(nb_aliments, nb_creatures)
+        self.bebe = True
 
     def creer_environnement(self, nb_aliments, nb_creatures):
         for _ in range(nb_aliments):
@@ -168,6 +176,17 @@ class Modele:
         for c in self.creatures_to_delete:
             self.creatures.remove(c)
         self.creatures_to_delete = []
+        
+        # for c1 in self.creatures:
+        #     for c2 in self.creatures:
+        #         if c1 is not c2: 
+        #             if distance(c1.position, c2.position) < 10 and self.bebe :
+        #                 c = Creature(c1.position, random.randint(15, 40))
+        #                 c.deg_orientation = self.degree
+        #                 c.vitesse = self.vitesse
+        #                 self.creatures.append(c)
+        #                 self.glandes.append(c.glande)
+        #                 self.bebe = False
 
     def reinitialiser_simulation(self, params):
         random.seed(params["seed"])
