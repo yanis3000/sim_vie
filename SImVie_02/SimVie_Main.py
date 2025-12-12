@@ -13,6 +13,12 @@ class Controleur:
 
     def jouer_tour(self):
         self.modele.mise_a_jour()
+
+        if len(self.modele.nouvelles_creatures) > 0:
+            for c in self.modele.nouvelles_creatures:
+                self.vue.creer_creature(c)
+        self.modele.nouvelles_creatures = []
+        
         self.vue.rafraichir()
         self.vue.root.after(50, self.jouer_tour)
 

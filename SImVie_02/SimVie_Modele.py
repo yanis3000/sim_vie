@@ -2,6 +2,7 @@
 # SimVie_Modele.py
 # ------------------------------------------------------------
 import random, math
+from enum import Enum
 from SimVie_Utils import Utils as ut
 from SimVie_Neurone import SystemeNerveux
 from SimVie_Odeur import Glande, Aliment, Nez
@@ -43,6 +44,7 @@ class Creature:
         # --- Param f_quad --- #
 
         self.count_cycle = 0
+        self.count_repro_cycle = 0
         
         # Santé
         origine = (0, 10) ## 10 = valeur de la santé au début de la simulation
@@ -54,7 +56,7 @@ class Creature:
         self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c       # Entre 0 et 100
         self.energie = 100
         self.satiete = 100
-        self.envie_reproduction = self.sante       
+        self.envie_reproduction = (a * math.pow(self.count_repro_cycle, 2)) + (self.count_repro_cycle * b) + c      
         self.intensite = 0                
 
         self.position = position
@@ -147,13 +149,14 @@ class Creature:
 
     def maj_jauges(self):
         self.count_cycle += 1
+        self.count_repro_cycle += 1
 
         # maj Santé
         a, b, c = self.sante_quad
         self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c
 
         # maj Reproduction
-        self.envie_reproduction = self.sante
+        self.envie_reproduction = (a * math.pow(self.count_repro_cycle, 2)) + (self.count_repro_cycle * b) + c 
 
         return self.sante > 0
 
@@ -169,6 +172,7 @@ class Modele:
         self.aliments = []
         self.creatures = []
         self.creatures_to_delete = []
+        self.nouvelles_creatures = []
         self.glandes = []
         self.degree = 20
         self.vitesse = 10
@@ -198,17 +202,22 @@ class Modele:
         for c in self.creatures_to_delete:
             self.creatures.remove(c)
         self.creatures_to_delete = []
+
         
         for c1 in self.creatures:
             for c2 in self.creatures:
                 if c1 is not c2: 
-                    if distance(c1.position, c2.position) < 10 and self.bebe :
-                        c = Creature(c1.position, random.randint(15, 40))
-                        c.deg_orientation = self.degree
-                        c.vitesse = self.vitesse
-                        self.creatures.append(c)
-                        self.glandes.append(c.glande)
-                        self.bebe = False
+                    if distance(c1.position, c2.position) < 10 :
+                        if c1.envie_reproduction > 60 and c2.envie_reproduction > 60:
+                            c = Creature(c1.position, random.randint(15, 40), genererIdObjet())
+                            c.deg_orientation = self.degree
+                            c.vitesse = self.vitesse
+                            self.creatures.append(c)
+                            self.controleur.vue.creer_creature(c)
+                            self.glandes.append(c.glande)
+                            c1.count_repro_cycle = 0
+                            c2.count_repro_cycle = 0
+                        
 
     def reinitialiser_simulation(self, params):
         random.seed(params["seed"])
