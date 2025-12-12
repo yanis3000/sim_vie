@@ -20,13 +20,13 @@ def angle_relatif(src, cible):
 class Glande() :
     def __init__(self, valeur_envie, position):
         self.position = position
-        self.valeur_pheromone = valeur_envie
+        self.valeur_pheromone = valeur_envie * 5
         self.rayon_senteur = valeur_envie * 1.5
 
     def emettre_pheromones(self, valeur_envie, position):
         self.position = position
         self.valeur_envie = valeur_envie
-        self.valeur_pheromone = valeur_envie
+        self.valeur_pheromone = valeur_envie * 5
         self.rayon_senteur = valeur_envie * 1.5
 
 
@@ -58,9 +58,6 @@ class Nez:
         self.capteur = Capteur()
 
     def sentir(self, aliments, glandes, ma_glande):
-
-        self.hemi_pheromone_droite = 0
-        self.hemi_pheromone_gauche = 0
 
         for a in aliments:
 
@@ -102,11 +99,15 @@ class Nez:
         self.hemi_pheromone_gauche = min(1.0, self.hemi_pheromone_gauche / 10) 
         self.hemi_pheromone_droite = min(1.0, self.hemi_pheromone_droite / 10) 
 
-    def maj_stimuli(self, droite_o, gauche_o):
+    def maj_stimuli(self, droite_o, gauche_o, droite_v, gauche_v):
         if droite_o :
             self.hemi_nourriture_droite = 0
         if gauche_o :
             self.hemi_nourriture_gauche = 0
+        if droite_v :
+            self.hemi_pheromone_droite = 0
+        if gauche_v :
+            self.hemi_pheromone_gauche = 0
     
 class Capteur:
     def __init__(self, neurone_olfactif=8, neurone_vomeronasal=8):
@@ -133,6 +134,8 @@ class Capteur:
     def activer(self, stimuli_nourriture, stimuli_pheromone):
         droite_o = False
         gauche_o = False
+        droite_v = False
+        gauche_v = False
         
         # Activer les capteurs
         if ( stimuli_nourriture[0] > stimuli_nourriture[1] ):
@@ -151,13 +154,21 @@ class Capteur:
                     neurone.actif = False
         if ( stimuli_pheromone[0] > stimuli_pheromone[1] ) :
             for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.vomeronasal_gauche))]):
-                neurone.actif = neurone.seuil < valeur
+                if ( neurone.seuil < valeur ):
+                    neurone.actif = True
+                    gauche_v = True
+            for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_nourriture[0] for _ in range(len(self.vomeronasal_droite))]):
+                neurone.actif = False
 
         elif ( stimuli_nourriture[0] <= stimuli_pheromone[1] ) :
             for neurone, valeur in zip(self.vomeronasal_droite, [stimuli_pheromone[1] for _ in range(len(self.vomeronasal_droite))]):
-                neurone.actif = neurone.seuil < valeur
+                if ( neurone.seuil < valeur ):
+                    neurone.actif = True
+                    droite_v = True
+            for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_nourriture[0] for _ in range(len(self.vomeronasal_gauche))]):
+                neurone.actif = False
 
-        return (droite_o, gauche_o)
+        return (droite_o, gauche_o, droite_v, gauche_v)
 
 class GanglionOlfactif:
 

@@ -46,6 +46,10 @@ class Pattes:
         self.actif_gauche = sum(m.potentiel for m in self.moteurs_gauche if m.actif) / len(self.moteurs_gauche)
         self.actif_droite = sum(m.potentiel for m in self.moteurs_droite if m.actif) / len(self.moteurs_droite)
 
+        if self.actif_gauche == 0 and self.actif_droite == 0:
+            self.actif_gauche = random.uniform(0., 0.1)
+            self.actif_droite = random.uniform(0.,0.1)
+
         return self.actif_gauche, self.actif_droite
 
     
