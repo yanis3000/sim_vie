@@ -189,16 +189,16 @@ class Modele:
             self.creatures.remove(c)
         self.creatures_to_delete = []
         
-        # for c1 in self.creatures:
-        #     for c2 in self.creatures:
-        #         if c1 is not c2: 
-        #             if distance(c1.position, c2.position) < 10 and self.bebe :
-        #                 c = Creature(c1.position, random.randint(15, 40))
-        #                 c.deg_orientation = self.degree
-        #                 c.vitesse = self.vitesse
-        #                 self.creatures.append(c)
-        #                 self.glandes.append(c.glande)
-        #                 self.bebe = False
+        for c1 in self.creatures:
+            for c2 in self.creatures:
+                if c1 is not c2: 
+                    if distance(c1.position, c2.position) < 10 and self.bebe :
+                        c = Creature(c1.position, random.randint(15, 40))
+                        c.deg_orientation = self.degree
+                        c.vitesse = self.vitesse
+                        self.creatures.append(c)
+                        self.glandes.append(c.glande)
+                        self.bebe = False
 
     def reinitialiser_simulation(self, params):
         random.seed(params["seed"])
