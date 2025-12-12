@@ -27,16 +27,18 @@ class Vue:
         self.largeur = 1000
         self.hauteur = 800
 
+        self.id_creature_actuel = 0
+        self.faim_creature_actuel = 0
+        self.energie_creature_actuel = 0
+        self.sante_creature_actuel = 0
+        self.repro_creature_actuel = 0
+
 
         # ========================================================
         # FRAME PRINCIPAL (GAUCHE = config, DROITE = monde)
         # ========================================================
         self.frame_principal = tk.Frame(self.root)
         self.frame_principal.pack(fill=tk.BOTH, expand=True)
-
-
- 
-
 
         # --------------------------------------------------------
         # 1️⃣ FRAME DE CONFIGURATION
@@ -171,6 +173,8 @@ class Vue:
                                  bg="#e8f4f8", highlightthickness=0)
         self.canevas.grid(row=0, column=0, sticky="nsew")
 
+        
+
         self.scroll_x = tk.Scrollbar(frame_monde, orient=tk.HORIZONTAL, command=self.canevas.xview)
         self.scroll_y = tk.Scrollbar(frame_monde, orient=tk.VERTICAL, command=self.canevas.yview)
         self.scroll_x.grid(row=1, column=0, sticky="ew")
@@ -181,7 +185,7 @@ class Vue:
         self.canevas.configure(xscrollcommand=self.scroll_x.set, yscrollcommand=self.scroll_y.set)
         self.canevas.config(scrollregion=(0, 0, self.modele.largeur_terrain, self.modele.hauteur_terrain))
 
-
+        self.canevas.tag_bind("creatures","<Button-1>", self.on_canevas_click)
 
         # Premier affichage
         self.afficher_elements()
@@ -190,6 +194,35 @@ class Vue:
     # ========================================================
     # CONTRÔLES DE SIMULATION
     # ========================================================
+
+    def on_canevas_click(self, event):
+        
+        clicked_item = self.canevas.gettags("current")
+
+        if clicked_item:
+            item_id = clicked_item[1]
+            print(f"Clicked Canevas Item ID: {item_id}")
+
+            for i in self.modele.creatures:
+                if i.id == item_id:
+                    self.id_creature_actuel = item_id
+                    self.faim_creature_actuel = i.satiete
+                    self.energie_creature_actuel = i.energie
+                    self.sante_creature_actuel = i.sante
+                    self.repro_creature_actuel = i.envie_reproduction
+
+            self.canevas.itemconfig(item_id, fill="orange")
+
+
+    def rafraichir_jauges(self):
+        for i in self.modele.creatures:
+            if i.id == self.id_creature_actuel:
+                self.faim_creature_actuel = i.satiete
+                self.energie_creature_actuel = i.energie
+                self.sante_creature_actuel = i.sante
+                self.repro_creature_actuel = i.envie_reproduction
+
+
     def basculer_pause(self):
         self.en_pause = not self.en_pause
         if self.en_pause:
@@ -268,7 +301,7 @@ class Vue:
 
         # Corps ovale orienté
         pts = self.forme_ovale(x, y, r, creature.orientation)
-        id_c = self.canevas.create_polygon(pts, fill=couleur, outline="#333", smooth=True, splinesteps=10)
+        id_c = self.canevas.create_polygon(pts, fill=couleur, outline="#333", smooth=True, splinesteps=10, tags=("creatures", creature.id))
 
         # Pointe directionnelle
         angle = math.radians(creature.orientation)
@@ -318,7 +351,8 @@ class Vue:
 
         for creature in self.modele.creatures:
             self.maj_creature(creature)
-            
+
+        self.rafraichir_jauges()
         self.mettre_a_jour_stats()
 
     def maj_creature(self, creature):
@@ -382,11 +416,11 @@ class Vue:
         self.label_alim.config(text=f"Aliments : {nb_aliments}")
         self.label_energie.config(text=f"Énergie moyenne : {energie_moy:.1f}")
 
-        self.jauge_id.config(text="Identifiant : {0}", font=("Arial", 10, "bold"))
-        self.jauge_faim.config(text="Jauge faim : {0} / 100", font=("Arial", 10, "bold"))
-        self.jauge_energie.config(text="Jauge énergie : {0} / 100", font=("Arial", 10, "bold"))
-        self.jauge_sante.config(text="Jauge santé : {0} / 100", font=("Arial", 10, "bold"))
-        self.jauge_reproduction.config(text="Envie de reproduction : {0} / 100", font=("Arial", 10, "bold"))
+        self.jauge_id.config(text=f"Identifiant : {self.id_creature_actuel}", font=("Arial", 10, "bold"))
+        self.jauge_faim.config(text=f"Jauge faim : {self.faim_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
+        self.jauge_energie.config(text=f"Jauge énergie : {self.energie_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
+        self.jauge_sante.config(text=f"Jauge santé : {self.sante_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
+        self.jauge_reproduction.config(text=f"Envie de reproduction : {self.repro_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
 
 
     def couleur_energie(self, energie):
@@ -395,3 +429,6 @@ class Vue:
         g = int(180 * e)
         b = int(40 * (1 - e))
         return f'#{r:02x}{g:02x}{b:02x}'
+
+
+    

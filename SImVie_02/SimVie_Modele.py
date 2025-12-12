@@ -8,6 +8,16 @@ from SimVie_Odeur import Glande, Aliment, Nez
 from SimVie_Moteur import Pattes
 
 # ------------------------------------------------------------
+# Générateur d'id unique
+# ------------------------------------------------------------
+ID_ACTUEL = 0
+
+def genererIdObjet():
+    global ID_ACTUEL
+    ID_ACTUEL += 1
+    return f"id_{ID_ACTUEL}"
+
+# ------------------------------------------------------------
 # Données environnementales
 # ------------------------------------------------------------
 def distance(a, b):
@@ -23,7 +33,7 @@ def angle_relatif(src, cible):
 # Créature : perçoit, agit, se nourrit
 # ------------------------------------------------------------
 class Creature:
-    def __init__(self, position, taille):
+    def __init__(self, position, taille, id):
         # --- Param f_quad --- #
 
         self.count_cycle = 0
@@ -51,6 +61,8 @@ class Creature:
         self.glande = Glande(self.envie_reproduction, self.position)
 
         self.deg_orientation = 20
+
+        self.id = id
 
     # --- Olfaction directionnelle ---
     def percevoir(self, aliments, glandes):
@@ -161,7 +173,7 @@ class Modele:
         for _ in range(nb_creatures):
             pos = (random.randint(0, self.largeur_terrain),
                    random.randint(0, self.hauteur_terrain))
-            c = Creature(pos, random.randint(15, 40))
+            c = Creature(pos, random.randint(15, 40), genererIdObjet())
             c.deg_orientation = self.degree
             c.vitesse = self.vitesse
             self.creatures.append(c)
