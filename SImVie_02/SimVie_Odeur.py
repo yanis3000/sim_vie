@@ -36,9 +36,9 @@ class Glande() :
 class Aliment:
     def __init__(self, position, valeur_nourriture):
         self.position = position
-        self.valeur_nourriture = valeur_nourriture
+        self.valeur_nourriture = valeur_nourriture * 5
         self.taille = valeur_nourriture * 0.1
-        self.rayon_senteur = valeur_nourriture * 5
+        self.rayon_senteur = valeur_nourriture
 
 class Nez:
     def __init__(self, taille_creature, sensibilite_olfactive, position, orientation):
@@ -87,10 +87,15 @@ class Nez:
                     rel = (ang - self.orientation + 540) % 360 - 180
                     odeur = g.valeur_pheromone / (d + 1)
 
-                    if -90 < rel < 0:
+                    if -180 < rel < 0:
                         self.hemi_pheromone_gauche += odeur
-                    elif 0 <= rel < 90:
+                    elif 0 <= rel < 180:
                         self.hemi_pheromone_droite += odeur
+
+        if self.hemi_nourriture_droite < self.hemi_nourriture_gauche:
+            self.hemi_nourriture_droite = 0
+        else :
+            self.hemi_nourriture_gauche = 0
 
         self.hemi_nourriture_gauche = min(1.0, self.hemi_nourriture_gauche / 10) 
         self.hemi_nourriture_droite = min(1.0, self.hemi_nourriture_droite / 10) 
@@ -135,11 +140,15 @@ class Capteur:
                 if ( neurone.seuil < valeur ):
                     neurone.actif = True
                     gauche_o = True
+            for neurone, valeur in zip(self.olfactif_droite, [stimuli_nourriture[0] for _ in range(len(self.olfactif_droite))]):
+                    neurone.actif = False
         elif ( stimuli_nourriture[0] <= stimuli_nourriture[1]  ):
             for neurone, valeur in zip(self.olfactif_droite, [stimuli_nourriture[1] for _ in range(len(self.olfactif_droite))]):
                 if ( neurone.seuil < valeur):
                     neurone.actif = True
                     droite_o = True
+            for neurone, valeur in zip(self.olfactif_gauche, [stimuli_nourriture[0] for _ in range(len(self.olfactif_gauche))]):
+                    neurone.actif = False
         if ( stimuli_pheromone[0] > stimuli_pheromone[1] ) :
             for neurone, valeur in zip(self.vomeronasal_gauche, [stimuli_pheromone[0] for _ in range(len(self.vomeronasal_gauche))]):
                 neurone.actif = neurone.seuil < valeur
