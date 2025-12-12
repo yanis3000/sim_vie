@@ -32,6 +32,12 @@ def angle_relatif(src, cible):
 # ------------------------------------------------------------
 # Créature : perçoit, agit, se nourrit
 # ------------------------------------------------------------
+
+class Etat(Enum): # selon la convention, le name reste en majuscule
+    DISPONIBLE = 0
+    MANGER = 1
+    REPRODUCTION = 2
+
 class Creature:
     def __init__(self, position, taille, id):
         # --- Param f_quad --- #
@@ -59,6 +65,8 @@ class Creature:
         self.cerveau = SystemeNerveux(self.narines.capteur.ganglion.olfactif_actif, self.narines.capteur.ganglion.vomeronasal_actif)
         self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation) 
         self.glande = Glande(self.envie_reproduction, self.position)
+
+        self.etat = Etat.DISPONIBLE
 
         self.deg_orientation = 20
 
@@ -131,9 +139,11 @@ class Creature:
                 self.manger(a, aliments)
 
     def manger(self, aliment, aliments):
+        self.etat = Etat.MANGER
         if self.narines.capteur.ganglion.olfactif_actif:
             self.satiete = max(100, self.satiete + aliment.valeur_nourriture)
             aliments.remove(aliment)
+        self.etat = Etat.DISPONIBLE
 
     def maj_jauges(self):
         self.count_cycle += 1
