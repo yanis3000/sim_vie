@@ -41,6 +41,7 @@ class Etat(Enum): # selon la convention, le name reste en majuscule
 
 class Creature:
     def __init__(self, position, taille, id):
+        self.id = id
         # --- Param f_quad --- #
 
         self.count_cycle = 0
@@ -69,13 +70,12 @@ class Creature:
         self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation) 
         
         if self.genre == 'f':  
-            self.glande = Glande(self.envie_reproduction, self.position)
+            self.glande = Glande(self.id, self.envie_reproduction, self.position)
 
         self.etat = Etat.DISPONIBLE
 
         self.deg_orientation = 20
 
-        self.id = id
 
     # --- Olfaction directionnelle ---
     def percevoir(self, aliments, glandes):
@@ -145,9 +145,16 @@ class Creature:
             if distance(self.position, a.position) < (self.taille + a.taille):
                 self.manger(a, aliments)
 
+        if self.genre == 'm':
+            for g in glandes:
+                if distance(self.position, g.position) < (self.taille):
+                    if self.se_reproduire():
+                        return g.creature_id
+
+
     def manger(self, aliment, aliments):
-        self.etat = Etat.MANGER
         if self.narines.capteur.ganglion.olfactif_actif:
+            self.etat = Etat.MANGER
             self.satiete = max(100, self.satiete + aliment.valeur_nourriture)
             aliments.remove(aliment)
         self.etat = Etat.DISPONIBLE
@@ -165,9 +172,28 @@ class Creature:
 
         return self.sante > 0
     
-    # def se_reproduire(self):
+    def se_reproduire(self):
+        if self.narines.capteur.ganglion.vomeronasal_actif:
+            self.etat = Etat.REPRODUCTION
+            self.count_repro_cycle = 0
+            self.etat = Etat.DISPONIBLE
+            return True
+        else :
+            return False
 
 
+
+class Oeuf:
+    def __init__(self, pere, mere):
+        self.pere = pere
+        self.mere = mere
+        self.position = mere.position
+        self.duree = random.randint(100, 200)
+        self.count = 0
+
+    def cycle(self):
+        self.count += 1
+        return self.count >= self.duree
 
 # ------------------------------------------------------------
 # Modèle général
@@ -182,10 +208,11 @@ class Modele:
         self.creatures_to_delete = []
         self.nouvelles_creatures = []
         self.glandes = []
+        self.oeuf = []
+        self.oeuf_to_delete = []
         self.degree = 20
         self.vitesse = 10
         self.creer_environnement(nb_aliments, nb_creatures)
-        self.bebe = True
 
     def creer_environnement(self, nb_aliments, nb_creatures):
         for _ in range(nb_aliments):
@@ -206,30 +233,32 @@ class Modele:
         for c in self.creatures:
             if c.genre == 'f':
                 c.glande.emettre_pheromones(c.envie_reproduction, c.position)
-            c.agir(self.aliments, self.glandes)
+            id = c.agir(self.aliments, self.glandes)
+            if id != None:
+                for m in self.creatures:
+                    if id == m.id:
+                        self.oeuf.append(Oeuf(c, m))
+                        m.count_repro_cycle = 0
             if c.maj_jauges() == False:
                 self.creatures_to_delete.append(c)
         for c in self.creatures_to_delete:
             self.creatures.remove(c)
         self.creatures_to_delete = []
-
         
-        for c1 in self.creatures:
-            for c2 in self.creatures:
-                if c1 is not c2: 
-                    if distance(c1.position, c2.position) < 10 :
-                        if c1.envie_reproduction > 60 and c2.envie_reproduction > 60:
-                            c = Creature(c1.position, random.randint(15, 40), genererIdObjet())
-                            c.deg_orientation = self.degree
-                            c.vitesse = self.vitesse
-                            self.creatures.append(c)
-                            self.controleur.vue.creer_creature(c)
-                            if c.genre == 'f':
-                                self.glandes.append(c.glande)
-                            c1.count_repro_cycle = 0
-                            c2.count_repro_cycle = 0
+        for o in self.oeuf:
+            if o.cycle():
+                self.oeuf_to_delete.append(o)
+                c = Creature(o.position, random.randint(15, 40), genererIdObjet())
+                c.deg_orientation = self.degree
+                c.vitesse = self.vitesse
+                self.creatures.append(c)
+                self.controleur.vue.creer_creature(c)
+                if c.genre == 'f':
+                    self.glandes.append(c.glande)
+        for o in self.oeuf_to_delete:
+            self.oeuf.remove(o)
+        self.oeuf_to_delete = []
                         
-
     def reinitialiser_simulation(self, params):
         random.seed(params["seed"])
         self.largeur = params["largeur"]

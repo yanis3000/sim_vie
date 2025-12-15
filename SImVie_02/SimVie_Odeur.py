@@ -18,7 +18,8 @@ def angle_relatif(src, cible):
 # ------------------------------------------------------------
 
 class Glande() :
-    def __init__(self, valeur_envie, position):
+    def __init__(self, creature_id, valeur_envie, position):
+        self.creature_id = creature_id
         self.position = position
         self.valeur_pheromone = valeur_envie * 5
         self.rayon_senteur = valeur_envie * 1.5
