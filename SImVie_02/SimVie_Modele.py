@@ -233,6 +233,8 @@ class Modele:
         self.oeuf_to_delete = []
         self.degree = 20
         self.vitesse = 10
+        self.count_food = 0
+        self.count_interval = 30
         self.creer_environnement(nb_aliments, nb_creatures)
 
     def creer_environnement(self, nb_aliments, nb_creatures):
@@ -251,6 +253,12 @@ class Modele:
                 self.glandes.append(c.glande)
 
     def mise_a_jour(self):
+        self.count_food += 1
+        if self.count_food >= self.count_interval:
+            pos = (random.randint(0, self.largeur_terrain),
+                   random.randint(0, self.hauteur_terrain))
+            self.aliments.append(Aliment(pos, random.randint(10, 100)))
+            self.count_food = 0
         for c in self.creatures:
             if c.genre == 'f':
                 c.glande.emettre_pheromones(c.envie_reproduction, c.position)
