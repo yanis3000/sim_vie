@@ -54,8 +54,8 @@ class SystemeNerveux:
 
         # --- satiété, énergie, santé, reproduction --- #
 
-        self.seuil_olfactif = [80, 5, 5, 0]
-        self.seuil_vomeronasal = [50, 20, 30, 80]
+        self.seuil_olfactif = [60, 5, 5, 0]
+        self.seuil_vomeronasal = [20, 20, 30, 80]
         self.rules = (True, False, False, False)
         self.jauge = []
 
@@ -91,9 +91,11 @@ class SystemeNerveux:
     def maj_ganglions(self, creature):
         rep1 = []
         rep2 = []
+        rep2.append(self.rules[0] if self.jauge[0] >= self.seuil_vomeronasal[0] else not self.rules[0])
         for i in range(len(self.jauge)):
             rep1.append(self.rules[i] if self.jauge[i] <= self.seuil_olfactif[i] else not self.rules[i])
-            rep2.append(self.rules[i] if self.jauge[i] <= self.seuil_vomeronasal[i] else not self.rules[i])
+            if i > 0:
+                rep2.append(self.rules[i] if self.jauge[i] <= self.seuil_vomeronasal[i] else not self.rules[i])
         creature.narines.capteur.ganglion.olfactif_actif = all(rep1)
         creature.narines.capteur.ganglion.vomeronasal_actif = all(rep2)
         

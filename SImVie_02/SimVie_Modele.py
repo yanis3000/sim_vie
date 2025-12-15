@@ -74,6 +74,7 @@ class Creature:
         
         if self.genre == 'f':  
             self.glande = Glande(self.id, self.envie_reproduction, self.position)
+            self.gestation_cap = random.randint(1, 6)
 
         self.etat = Etat.DISPONIBLE
 
@@ -141,7 +142,7 @@ class Creature:
             # --- 5. MÉTABOLISME ---
             # Chaque déplacement consomme de l'énergie.
             # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
-            self.satiete -= 0.2 + (0.2 * self.intensite)
+            self.satiete -= 0.1 + (0.1 * self.intensite)
             if self.satiete < 0:
                 self.satiete = 0
             elif self.satiete > 100 :
@@ -156,13 +157,18 @@ class Creature:
 
             if self.genre == 'm':
                 for g in glandes:
-                    if distance(self.position, g.position) < (self.taille):
-                        if self.se_reproduire():
-                            self.partenaire = g.creature_id
+                    if not g.targetted:
+                        if distance(self.position, g.position) < (self.taille):
+                            if self.se_reproduire(g):
+                                self.partenaire = g.creature_id
+                                return g.creature_id
         else:
             self.count_action += 1
             if self.count_action >= self.count_limit_action:
-                self.action(aliments)
+                if self.action(aliments) :
+                    id = self.partenaire
+                    self.partenaire = None
+                    return id
 
 
     def manger(self, aliment, aliments):
@@ -172,9 +178,11 @@ class Creature:
             aliment.targetted = True
             self.count_limit_action = 100
 
-    def se_reproduire(self):
+    def se_reproduire(self, glande):
         if self.narines.capteur.ganglion.vomeronasal_actif:
             self.etat = Etat.REPRODUCTION      
+            self.count_limit_action = 100
+            glande.targetted = True
             return True
         else:
             return False
@@ -190,7 +198,7 @@ class Creature:
             self.etat = Etat.DISPONIBLE
             self.count_repro_cycle = 0
             self.count_action = 0
-            self.partenaire = None
+            return True
 
     def maj_jauges(self):
         self.count_cycle += 1
@@ -205,9 +213,6 @@ class Creature:
 
         return self.sante > 0
     
-    
-
-
 
 class Oeuf:
     def __init__(self, pere, mere):
@@ -273,11 +278,18 @@ class Modele:
             if id != None:
                 for m in self.creatures:
                     if id == m.id:
-                        self.oeuf.append(Oeuf(c, m))
-                        m.count_repro_cycle = 0
+                        if m.etat == Etat.DISPONIBLE:
+                            m.etat = Etat.REPRODUCTION
+                            m.count_limit_action = 100
+                        else:
+                            for _ in range(m.gestation_cap + 1):
+                                self.oeuf.append(Oeuf(c, m))
+                            m.count_repro_cycle = 0
             if c.maj_jauges() == False:
                 self.creatures_to_delete.append(c)
         for c in self.creatures_to_delete:
+            if c.genre == 'f':
+                self.glandes.remove(c.glande)
             self.creatures.remove(c)
         self.creatures_to_delete = []
         

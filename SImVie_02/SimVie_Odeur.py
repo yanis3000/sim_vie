@@ -19,6 +19,7 @@ def angle_relatif(src, cible):
 
 class Glande() :
     def __init__(self, creature_id, valeur_envie, position):
+        self.targetted = False
         self.creature_id = creature_id
         self.position = position
         self.valeur_pheromone = valeur_envie * 5
