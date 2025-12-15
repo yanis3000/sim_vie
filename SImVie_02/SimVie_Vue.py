@@ -315,13 +315,15 @@ class Vue:
                                         outline="#00cccc", width=1, dash=(4, 4))
         
         #Champ phéromones
-        portee_phero = creature.glande.rayon_senteur
-        id_phero = self.canevas.create_oval(x - portee_phero, y - portee_phero, x + portee_phero, y + portee_phero,
-                                        outline="#cc0000", width=1, dash=(3, 3))
+        if creature.genre == 'f':
+            portee_phero = creature.glande.rayon_senteur
+            id_phero = self.canevas.create_oval(x - portee_phero, y - portee_phero, x + portee_phero, y + portee_phero,
+                                            outline="#cc0000", width=1, dash=(3, 3))
+            self.id_phero[creature] = id_phero
         self.id_creatures[creature] = id_c
         self.id_pointes[creature] = id_p
         self.id_olfaction[creature] = id_o
-        self.id_phero[creature] = id_phero
+
 
     # ========================================================
     # RAFRAÎCHISSEMENT
@@ -341,13 +343,14 @@ class Vue:
 
         for creature in list(self.id_creatures.keys()):
             if creature not in self.modele.creatures:
-                self.canevas.delete(self.id_phero[creature])
+                if creature.genre == 'f':
+                    self.canevas.delete(self.id_phero[creature])
+                    self.id_phero[creature]
                 self.canevas.delete(self.id_olfaction[creature])
                 self.canevas.delete(self.id_pointes[creature])
                 self.canevas.delete(self.id_creatures[creature])
-                del self.id_creatures[creature], self.id_olfaction[creature], self.id_phero[creature], self.id_pointes[creature]
-
-
+                del self.id_creatures[creature], self.id_olfaction[creature], self.id_pointes[creature] 
+                
 
         for creature in self.modele.creatures:
             self.maj_creature(creature)
@@ -372,8 +375,9 @@ class Vue:
         portee = creature.narines.portee_olfactive
         self.canevas.coords(self.id_olfaction[creature], x - portee, y - portee, x + portee, y + portee)
 
-        portee_phero = creature.glande.rayon_senteur
-        self.canevas.coords(self.id_phero[creature], x - portee_phero, y - portee_phero, x + portee_phero, y + portee_phero)
+        if creature.genre == 'f':
+            portee_phero = creature.glande.rayon_senteur
+            self.canevas.coords(self.id_phero[creature], x - portee_phero, y - portee_phero, x + portee_phero, y + portee_phero)
 
     # ========================================================
     # VISIBILITÉ DES CHAMPS

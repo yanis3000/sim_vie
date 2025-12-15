@@ -63,10 +63,13 @@ class Creature:
         self.taille = taille
         self.orientation = random.uniform(0, 360)
         self.vitesse = 10  
-        self.narines = Nez(self.taille, random.uniform(0.8, 1.2), self.position, self.orientation)
+        self.genre = random.choice(('f', 'm'))
+        self.narines = Nez(self.genre, self.taille, random.uniform(0.8, 1.2), self.position, self.orientation)
         self.cerveau = SystemeNerveux(self.narines.capteur.ganglion.olfactif_actif, self.narines.capteur.ganglion.vomeronasal_actif)
         self.pattes = Pattes(self.narines.capteur.ganglion, self.position, self.orientation) 
-        self.glande = Glande(self.envie_reproduction, self.position)
+        
+        if self.genre == 'f':  
+            self.glande = Glande(self.envie_reproduction, self.position)
 
         self.etat = Etat.DISPONIBLE
 
@@ -78,7 +81,7 @@ class Creature:
     def percevoir(self, aliments, glandes):
         self.narines.position = self.position
         self.narines.orientation = self.orientation
-        self.narines.sentir(aliments, glandes, self.glande)
+        self.narines.sentir(aliments, glandes)
 
     # --- Comportement global ---
     def agir(self, aliments, glandes):
@@ -95,11 +98,13 @@ class Creature:
         stimuli_nourriture = [self.narines.hemi_nourriture_gauche, 
                    self.narines.hemi_nourriture_droite]
         
-        stimuli_pheromone = [self.narines.hemi_pheromone_gauche, 
-                   self.narines.hemi_pheromone_droite]
+        stimuli_pheromone = [0, 0] 
+        
+        if self.genre == 'm':
+            stimuli_pheromone = [self.narines.hemi_pheromone_gauche, 
+                    self.narines.hemi_pheromone_droite]
         
         
-
         # --- 2. TRAITEMENT NEURONAL ---
         # Le système nerveux interne traite les signaux sensoriels
         # et produit une activation motrice globale (de 0 à 1)
@@ -159,6 +164,9 @@ class Creature:
         self.envie_reproduction = (a * math.pow(self.count_repro_cycle, 2)) + (self.count_repro_cycle * b) + c 
 
         return self.sante > 0
+    
+    # def se_reproduire(self):
+
 
 
 # ------------------------------------------------------------
@@ -191,11 +199,13 @@ class Modele:
             c.deg_orientation = self.degree
             c.vitesse = self.vitesse
             self.creatures.append(c)
-            self.glandes.append(c.glande)
+            if c.genre == 'f':
+                self.glandes.append(c.glande)
 
     def mise_a_jour(self):
         for c in self.creatures:
-            c.glande.emettre_pheromones(c.envie_reproduction, c.position)
+            if c.genre == 'f':
+                c.glande.emettre_pheromones(c.envie_reproduction, c.position)
             c.agir(self.aliments, self.glandes)
             if c.maj_jauges() == False:
                 self.creatures_to_delete.append(c)
@@ -214,7 +224,8 @@ class Modele:
                             c.vitesse = self.vitesse
                             self.creatures.append(c)
                             self.controleur.vue.creer_creature(c)
-                            self.glandes.append(c.glande)
+                            if c.genre == 'f':
+                                self.glandes.append(c.glande)
                             c1.count_repro_cycle = 0
                             c2.count_repro_cycle = 0
                         

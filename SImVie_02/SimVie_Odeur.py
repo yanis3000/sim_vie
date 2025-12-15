@@ -41,7 +41,7 @@ class Aliment:
         self.rayon_senteur = valeur_nourriture
 
 class Nez:
-    def __init__(self, taille_creature, sensibilite_olfactive, position, orientation):
+    def __init__(self, genre, taille_creature, sensibilite_olfactive, position, orientation):
 
         self.position = position
         self.orientation = orientation
@@ -49,15 +49,17 @@ class Nez:
         self.hemi_nourriture_gauche = 0
         self.hemi_nourriture_droite = 0
 
-        self.hemi_pheromone_droite = 0
-        self.hemi_pheromone_gauche = 0
+        if genre == 'm':
+            self.hemi_pheromone_droite = 0
+            self.hemi_pheromone_gauche = 0
 
         self.sensibilite_olfactive = sensibilite_olfactive
         self.portee_olfactive = (20 + math.sqrt(taille_creature) * 30) * self.sensibilite_olfactive
 
         self.capteur = Capteur()
+        self.genre = genre
 
-    def sentir(self, aliments, glandes, ma_glande):
+    def sentir(self, aliments, glandes):
 
         for a in aliments:
 
@@ -73,9 +75,9 @@ class Nez:
                     self.hemi_nourriture_gauche += odeur
                 elif 0 <= rel < 180:
                     self.hemi_nourriture_droite += odeur
-
-        for g in glandes:
-            if g != ma_glande:
+        
+        if self.genre == 'm':
+            for g in glandes:
                 d = distance(self.position, g.position)
 
                 if d < (self.portee_olfactive + g.rayon_senteur):
@@ -96,8 +98,9 @@ class Nez:
 
         self.hemi_nourriture_gauche = min(1.0, self.hemi_nourriture_gauche / 10) 
         self.hemi_nourriture_droite = min(1.0, self.hemi_nourriture_droite / 10) 
-        self.hemi_pheromone_gauche = min(1.0, self.hemi_pheromone_gauche / 10) 
-        self.hemi_pheromone_droite = min(1.0, self.hemi_pheromone_droite / 10) 
+        if self.genre == 'm':
+            self.hemi_pheromone_gauche = min(1.0, self.hemi_pheromone_gauche / 10) 
+            self.hemi_pheromone_droite = min(1.0, self.hemi_pheromone_droite / 10) 
 
     def maj_stimuli(self, droite_o, gauche_o, droite_v, gauche_v):
         if droite_o :
