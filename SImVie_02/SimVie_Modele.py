@@ -45,7 +45,10 @@ class Creature:
         # --- Param f_quad --- #
 
         self.count_cycle = 0
+        self.count_action = 0
+        self.count_limit_action = 0
         self.count_repro_cycle = 0
+        
         
         # Santé
         origine = (0, 10) ## 10 = valeur de la santé au début de la simulation
@@ -76,6 +79,9 @@ class Creature:
 
         self.deg_orientation = 20
 
+        # Aliment en interaction
+        self.aliment = None
+
 
     # --- Olfaction directionnelle ---
     def percevoir(self, aliments, glandes):
@@ -90,74 +96,89 @@ class Creature:
         Elle perçoit les odeurs, ajuste son orientation, se déplace,
         consomme de l'énergie, et interagit avec les aliments.
         """
-        # --- 1. PERCEPTION SENSORIELLE ---
-        # Le cerveau reçoit deux entrées : intensité olfactive gauche/droite (0 à 1)
+        if self.etat == Etat.DISPONIBLE:
+            # --- 1. PERCEPTION SENSORIELLE ---
+            # Le cerveau reçoit deux entrées : intensité olfactive gauche/droite (0 à 1)
 
-        self.percevoir(aliments, glandes)
+            self.percevoir(aliments, glandes)
 
-        stimuli_nourriture = [self.narines.hemi_nourriture_gauche, 
-                   self.narines.hemi_nourriture_droite]
-        
-        stimuli_pheromone = [0, 0] 
-        
-        if self.genre == 'm':
-            stimuli_pheromone = [self.narines.hemi_pheromone_gauche, 
-                    self.narines.hemi_pheromone_droite]
-        
-        
-        # --- 2. TRAITEMENT NEURONAL ---
-        # Le système nerveux interne traite les signaux sensoriels
-        # et produit une activation motrice globale (de 0 à 1)
+            stimuli_nourriture = [self.narines.hemi_nourriture_gauche, 
+                    self.narines.hemi_nourriture_droite]
+            
+            stimuli_pheromone = [0, 0] 
+            
+            if self.genre == 'm':
+                stimuli_pheromone = [self.narines.hemi_pheromone_gauche, 
+                        self.narines.hemi_pheromone_droite]
+            
+            
+            # --- 2. TRAITEMENT NEURONAL ---
+            # Le système nerveux interne traite les signaux sensoriels
+            # et produit une activation motrice globale (de 0 à 1)
 
-        actif_g, actif_d = self.cerveau.cycle(self, stimuli_nourriture, stimuli_pheromone)
+            actif_g, actif_d = self.cerveau.cycle(self, stimuli_nourriture, stimuli_pheromone)
 
-        if actif_g > 0 or actif_d > 0 :
+            if actif_g > 0 or actif_d > 0 :
 
-            # --- 3. ORIENTATION ---
+                # --- 3. ORIENTATION ---
 
-            # Différence gauche-droite → rotation vers le côté le plus odorant
-            delta_orientation = (actif_d - actif_g) * self.deg_orientation
-            # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
-            self.orientation += delta_orientation + random.uniform(-1, 1)
+                # Différence gauche-droite → rotation vers le côté le plus odorant
+                delta_orientation = (actif_d - actif_g) * self.deg_orientation
+                # Ajout d'un léger bruit aléatoire pour éviter la synchronisation des trajectoires
+                self.orientation += delta_orientation + random.uniform(-1, 1)
 
-            # --- 4. DÉPLACEMENT ---
-            # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
-            self.intensite = max(0.05, (actif_g + actif_d) / 2)
-            angle = math.radians(self.orientation)
-            dx = self.vitesse * self.intensite * math.cos(angle)
-            dy = self.vitesse * self.intensite * math.sin(angle)
-            self.position = (self.position[0] + dx, self.position[1] + dy)
-        else :
-            self.intensite = 0
+                # --- 4. DÉPLACEMENT ---
+                # L’intensité de mouvement dépend de l’activation moyenne (moyenne des deux narines)
+                self.intensite = max(0.05, (actif_g + actif_d) / 2)
+                angle = math.radians(self.orientation)
+                dx = self.vitesse * self.intensite * math.cos(angle)
+                dy = self.vitesse * self.intensite * math.sin(angle)
+                self.position = (self.position[0] + dx, self.position[1] + dy)
+            else :
+                self.intensite = 0
 
-        # --- 5. MÉTABOLISME ---
-        # Chaque déplacement consomme de l'énergie.
-        # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
-        self.satiete -= 0.2 + (0.2 * self.intensite)
-        if self.satiete < 0:
-            self.satiete = 0
-        elif self.satiete > 100 :
-            self.satiete = 100
+            # --- 5. MÉTABOLISME ---
+            # Chaque déplacement consomme de l'énergie.
+            # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
+            self.satiete -= 0.2 + (0.2 * self.intensite)
+            if self.satiete < 0:
+                self.satiete = 0
+            elif self.satiete > 100 :
+                self.satiete = 100
 
-        # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
-        # Si la créature touche un aliment, elle le consomme.
-        for a in aliments[:]:
-            if distance(self.position, a.position) < (self.taille + a.taille):
-                self.manger(a, aliments)
+            # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
+            # Si la créature touche un aliment, elle le consomme.
+            for a in aliments[:]:
+                if not a.targetted :
+                    if distance(self.position, a.position) < (self.taille + a.taille):
+                        self.manger(a, aliments)
 
-        if self.genre == 'm':
-            for g in glandes:
-                if distance(self.position, g.position) < (self.taille):
-                    if self.se_reproduire():
-                        return g.creature_id
+            if self.genre == 'm':
+                for g in glandes:
+                    if distance(self.position, g.position) < (self.taille):
+                        if self.se_reproduire():
+                            return g.creature_id
+        else:
+            self.count_action += 1
+            if self.count_action >= self.count_limit_action:
+                self.action(aliments)
 
 
     def manger(self, aliment, aliments):
         if self.narines.capteur.ganglion.olfactif_actif:
             self.etat = Etat.MANGER
-            self.satiete = max(100, self.satiete + aliment.valeur_nourriture)
-            aliments.remove(aliment)
-        self.etat = Etat.DISPONIBLE
+            self.aliment = aliment
+            aliment.targetted = True
+            self.count_limit_action = 100
+            
+
+    def action(self, aliments):
+        if self.etat == Etat.MANGER:
+            self.satiete = max(100, self.satiete + self.aliment.valeur_nourriture)
+            aliments.remove(self.aliment)
+            self.aliment = None
+            self.count_action = 0
+            self.etat = Etat.DISPONIBLE
 
     def maj_jauges(self):
         self.count_cycle += 1

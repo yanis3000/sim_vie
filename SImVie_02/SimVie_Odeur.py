@@ -36,6 +36,7 @@ class Glande() :
 # ------------------------------------------------------------
 class Aliment:
     def __init__(self, position, valeur_nourriture):
+        self.targetted = False
         self.position = position
         self.valeur_nourriture = valeur_nourriture * 5
         self.taille = valeur_nourriture * 0.1
