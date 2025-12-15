@@ -81,6 +81,7 @@ class Creature:
 
         # Aliment en interaction
         self.aliment = None
+        self.partenaire = None
 
 
     # --- Olfaction directionnelle ---
@@ -157,7 +158,7 @@ class Creature:
                 for g in glandes:
                     if distance(self.position, g.position) < (self.taille):
                         if self.se_reproduire():
-                            return g.creature_id
+                            self.partenaire = g.creature_id
         else:
             self.count_action += 1
             if self.count_action >= self.count_limit_action:
@@ -170,8 +171,14 @@ class Creature:
             self.aliment = aliment
             aliment.targetted = True
             self.count_limit_action = 100
-            
 
+    def se_reproduire(self):
+        if self.narines.capteur.ganglion.vomeronasal_actif:
+            self.etat = Etat.REPRODUCTION      
+            return True
+        else:
+            return False
+            
     def action(self, aliments):
         if self.etat == Etat.MANGER:
             self.satiete = max(100, self.satiete + self.aliment.valeur_nourriture)
@@ -179,6 +186,11 @@ class Creature:
             self.aliment = None
             self.count_action = 0
             self.etat = Etat.DISPONIBLE
+        if self.etat == Etat.REPRODUCTION:
+            self.etat = Etat.DISPONIBLE
+            self.count_repro_cycle = 0
+            self.count_action = 0
+            self.partenaire = None
 
     def maj_jauges(self):
         self.count_cycle += 1
@@ -193,14 +205,7 @@ class Creature:
 
         return self.sante > 0
     
-    def se_reproduire(self):
-        if self.narines.capteur.ganglion.vomeronasal_actif:
-            self.etat = Etat.REPRODUCTION
-            self.count_repro_cycle = 0
-            self.etat = Etat.DISPONIBLE
-            return True
-        else :
-            return False
+    
 
 
 
@@ -257,7 +262,9 @@ class Modele:
         if self.count_food >= self.count_interval:
             pos = (random.randint(0, self.largeur_terrain),
                    random.randint(0, self.hauteur_terrain))
-            self.aliments.append(Aliment(pos, random.randint(10, 100)))
+            a = Aliment(pos, random.randint(10, 100))
+            self.aliments.append(a)
+            self.controleur.vue.creer_aliment(a)
             self.count_food = 0
         for c in self.creatures:
             if c.genre == 'f':
