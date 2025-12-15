@@ -28,6 +28,7 @@ class Vue:
         self.hauteur = 800
 
         self.id_creature_actuel = 0
+        self.genre_creature = ""
         self.faim_creature_actuel = 0
         self.energie_creature_actuel = 0
         self.sante_creature_actuel = 0
@@ -151,6 +152,8 @@ class Vue:
         
         self.jauge_id = tk.Label(self.onglet_jauges, text="Identifiant : -", bg="#dde7ec", anchor="w")
         self.jauge_id.pack(fill=tk.X)
+        self.jauge_genre = tk.Label(self.onglet_jauges, text="Genre : -", bg="#dde7ec", anchor="w")
+        self.jauge_genre.pack(fill=tk.X)
         self.jauge_faim = tk.Label(self.onglet_jauges, text="Jauge faim : 0 / 100", bg="#dde7ec", anchor="w")
         self.jauge_faim.pack(fill=tk.X)
         self.jauge_energie = tk.Label(self.onglet_jauges, text="Jauge énergie : 0 / 100", bg="#dde7ec", anchor="w")
@@ -206,12 +209,17 @@ class Vue:
             for i in self.modele.creatures:
                 if i.id == item_id:
                     self.id_creature_actuel = item_id
+                    self.genre_creature = i.genre
                     self.faim_creature_actuel = i.satiete
                     self.energie_creature_actuel = i.energie
                     self.sante_creature_actuel = i.sante
                     self.repro_creature_actuel = i.envie_reproduction
 
-            self.canevas.itemconfig(item_id, fill="orange")
+            self.canevas.itemconfig(item_id, fill="#D3D3D3")
+            if self.genre_creature == "f":
+                self.genre_creature = "Femelle"
+            elif self.genre_creature == "m":
+                self.genre_creature = "Mâle"
 
 
     def rafraichir_jauges(self):
@@ -297,11 +305,19 @@ class Vue:
         r = creature.taille
         creature.deg_orientation = int(self.entree_orientation.get())
         creature.vitesse = int(self.entree_vitesse.get())
-        couleur = self.couleur_energie(creature.energie)
+        couleur = self.couleur_sante(creature.sante, creature.genre)
+        couleur_m = "#FFA500"
+        couleur_f = "#7F00FF"
 
         # Corps ovale orienté
-        pts = self.forme_ovale(x, y, r, creature.orientation)
-        id_c = self.canevas.create_polygon(pts, fill=couleur, outline="#333", smooth=True, splinesteps=10, tags=("creatures", creature.id))
+
+        if creature.genre == "f":
+            pts = self.forme_ovale(x, y, r, creature.orientation)
+            id_c = self.canevas.create_polygon(pts, fill=couleur, outline=couleur_f, width=2, smooth=True, splinesteps=10, tags=("creatures", creature.id))
+
+        else :
+            pts = self.forme_ovale(x, y, r, creature.orientation)
+            id_c = self.canevas.create_polygon(pts, fill=couleur, outline=couleur_m, width=2, smooth=True, splinesteps=10, tags=("creatures", creature.id))
 
         # Pointe directionnelle
         angle = math.radians(creature.orientation)
@@ -361,11 +377,15 @@ class Vue:
     def maj_creature(self, creature):
         x, y = creature.position
         r = creature.taille
-        couleur = self.couleur_energie(creature.energie)
+        couleur = self.couleur_sante(creature.sante, creature.genre)
+        
 
         pts = self.forme_ovale(x, y, r, creature.orientation)
         self.canevas.coords(self.id_creatures[creature], *pts)
-        self.canevas.itemconfig(self.id_creatures[creature], fill=couleur)
+        if creature.genre == "f":
+            self.canevas.itemconfig(self.id_creatures[creature], fill=couleur)
+        else:
+            self.canevas.itemconfig(self.id_creatures[creature], fill=couleur)
 
         angle = math.radians(creature.orientation)
         px = x + math.cos(angle) * r * 1.2
@@ -421,18 +441,28 @@ class Vue:
         self.label_energie.config(text=f"Énergie moyenne : {energie_moy:.1f}")
 
         self.jauge_id.config(text=f"Identifiant : {self.id_creature_actuel}", font=("Arial", 10, "bold"))
+        self.jauge_genre.config(text=f"Genre : {self.genre_creature}", font=("Arial", 10, "bold"))
         self.jauge_faim.config(text=f"Jauge faim : {self.faim_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
         self.jauge_energie.config(text=f"Jauge énergie : {self.energie_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
         self.jauge_sante.config(text=f"Jauge santé : {self.sante_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
         self.jauge_reproduction.config(text=f"Envie de reproduction : {self.repro_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
 
 
-    def couleur_energie(self, energie):
-        e = max(0, min(energie, 100)) / 100
-        r = 255
-        g = int(180 * e)
-        b = int(40 * (1 - e))
-        return f'#{r:02x}{g:02x}{b:02x}'
+    def couleur_sante(self, sante, genre):
+
+        if genre == "f":
+            e = max(0, min(sante, 100)) / 100
+            r = 127
+            g = int(0 * e)
+            b = int(255 * e)
+            return f'#{r:02x}{g:02x}{b:02x}'
+        
+        elif genre == "m":
+            e = max(0, min(sante, 100)) / 100
+            r = 255
+            g = int(180 * e)
+            b = int(40 * (1 - e))
+            return f'#{r:02x}{g:02x}{b:02x}'
 
 
     
