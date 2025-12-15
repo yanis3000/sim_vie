@@ -29,6 +29,8 @@ class Vue:
 
         self.id_creature_actuel = 0
         self.genre_creature = ""
+        self.etat_creature = 0
+        self.etat_creature_str = ""
         self.faim_creature_actuel = 0
         self.energie_creature_actuel = 0
         self.sante_creature_actuel = 0
@@ -152,6 +154,8 @@ class Vue:
         
         self.jauge_id = tk.Label(self.onglet_jauges, text="Identifiant : -", bg="#dde7ec", anchor="w")
         self.jauge_id.pack(fill=tk.X)
+        self.jauge_etat = tk.Label(self.onglet_jauges, text="État : -", bg="#dde7ec", anchor="w")
+        self.jauge_etat.pack(fill=tk.X)
         self.jauge_genre = tk.Label(self.onglet_jauges, text="Genre : -", bg="#dde7ec", anchor="w")
         self.jauge_genre.pack(fill=tk.X)
         self.jauge_faim = tk.Label(self.onglet_jauges, text="Jauge faim : 0 / 100", bg="#dde7ec", anchor="w")
@@ -209,6 +213,7 @@ class Vue:
             for i in self.modele.creatures:
                 if i.id == item_id:
                     self.id_creature_actuel = item_id
+                    self.etat_creature = i.etat.value
                     self.genre_creature = i.genre
                     self.faim_creature_actuel = i.satiete
                     self.energie_creature_actuel = i.energie
@@ -221,14 +226,33 @@ class Vue:
             elif self.genre_creature == "m":
                 self.genre_creature = "Mâle"
 
+            if self.etat_creature == 0:
+                self.etat_creature_str = "DISPONIBLE"
+            elif self.etat_creature == 1:
+                self.etat_creature_str = "MANGER"
+            elif self.etat_creature == 2:
+                self.etat_creature_str = "REPRODUCTION"
+            else:
+                self.etat_creature_str = "--"
+
 
     def rafraichir_jauges(self):
         for i in self.modele.creatures:
             if i.id == self.id_creature_actuel:
+                self.etat_creature = i.etat.value
                 self.faim_creature_actuel = i.satiete
                 self.energie_creature_actuel = i.energie
                 self.sante_creature_actuel = i.sante
                 self.repro_creature_actuel = i.envie_reproduction
+
+        if self.etat_creature == 0:
+            self.etat_creature_str = "DISPONIBLE"
+        elif self.etat_creature == 1:
+            self.etat_creature_str = "MANGER"
+        elif self.etat_creature == 2:
+            self.etat_creature_str = "REPRODUCTION"
+        else:
+            self.etat_creature_str = "--"
 
 
     def basculer_pause(self):
@@ -300,6 +324,8 @@ class Vue:
             )
             self.id_odeur[aliment].append(id_c)
 
+        self.maj_visibilite()
+
     def creer_creature(self, creature):
         x, y = creature.position
         r = creature.taille
@@ -339,6 +365,8 @@ class Vue:
         self.id_creatures[creature] = id_c
         self.id_pointes[creature] = id_p
         self.id_olfaction[creature] = id_o
+
+        self.maj_visibilite()
 
 
     # ========================================================
@@ -399,6 +427,7 @@ class Vue:
             portee_phero = creature.glande.rayon_senteur
             self.canevas.coords(self.id_phero[creature], x - portee_phero, y - portee_phero, x + portee_phero, y + portee_phero)
 
+
     # ========================================================
     # VISIBILITÉ DES CHAMPS
     # ========================================================
@@ -441,6 +470,7 @@ class Vue:
         self.label_energie.config(text=f"Énergie moyenne : {energie_moy:.1f}")
 
         self.jauge_id.config(text=f"Identifiant : {self.id_creature_actuel}", font=("Arial", 10, "bold"))
+        self.jauge_etat.config(text=f"État : {self.etat_creature_str}", font=("Arial", 10, "bold"))
         self.jauge_genre.config(text=f"Genre : {self.genre_creature}", font=("Arial", 10, "bold"))
         self.jauge_faim.config(text=f"Jauge faim : {self.faim_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
         self.jauge_energie.config(text=f"Jauge énergie : {self.energie_creature_actuel:.2f} / 100", font=("Arial", 10, "bold"))
