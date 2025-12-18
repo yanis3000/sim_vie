@@ -59,7 +59,7 @@ class Creature:
         # --- Jauges besoins --- #
         a, b, c = self.sante_quad
         self.sante = (a * math.pow(self.count_cycle, 2)) + (self.count_cycle * b) + c       # Entre 0 et 100
-        self.energie = 100
+        self.energie = random.randint(70, 100)
         self.satiete = 100
         self.envie_reproduction = (a * math.pow(self.count_repro_cycle, 2)) + (self.count_repro_cycle * b) + c      
         self.intensite = 0                
