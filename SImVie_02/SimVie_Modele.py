@@ -289,6 +289,7 @@ class Modele:
             self.aliments.append(a)
             self.controleur.vue.creer_aliment(a)
             self.count_food = 0
+
         for c in self.creatures:
             if c.genre == 'f':
                 c.glande.emettre_pheromones(c.envie_reproduction, c.position)
@@ -303,6 +304,7 @@ class Modele:
                             for _ in range(m.gestation_cap + 1):
                                 self.oeuf.append(Oeuf(c, m))
                             m.count_repro_cycle = 0
+                            m.glande.targetted = False
             if c.maj_jauges() == False:
                 self.creatures_to_delete.append(c)
         for c in self.creatures_to_delete:
@@ -331,6 +333,4 @@ class Modele:
         self.hauteur = params["hauteur"]
         self.aliments = []
         self.creatures = []
-        self.degree = params["orientation"]
-        self.vitesse = params["vitesse"]
         self.creer_environnement(params["nb_aliments"],params["nb_creatures"])
