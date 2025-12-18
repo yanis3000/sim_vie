@@ -69,11 +69,6 @@ class Vue:
         # --- Configuration de base ---
         tk.Label(self.onlet_config, text="⚙️  Configuration", bg="#dde7ec", font=("Arial", 12, "bold")).pack(pady=5)
 
-        tk.Label(self.onlet_config, text="Seed aléatoire :", bg="#dde7ec").pack(anchor="w", pady=3)
-        self.entree_seed = tk.Entry(self.onlet_config, width=10, justify="center")
-        self.entree_seed.pack(anchor="w")
-        self.entree_seed.insert(0, "0")
-
         # ✅ Nouveaux champs configurables
         tk.Label(self.onlet_config, text="Créatures :", bg="#dde7ec").pack(anchor="w", pady=(8, 0))
         self.entree_nb_creatures = tk.Entry(self.onlet_config, width=10, justify="center")
@@ -84,16 +79,6 @@ class Vue:
         self.entree_nb_aliments = tk.Entry(self.onlet_config, width=10, justify="center")
         self.entree_nb_aliments.insert(0, "10")
         self.entree_nb_aliments.pack(anchor="w")
-
-        tk.Label(self.onlet_config, text="Largeur :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_largeur = tk.Entry(self.onlet_config, width=10, justify="center")
-        self.entree_largeur.insert(0, "1000")
-        self.entree_largeur.pack(anchor="w")
-
-        tk.Label(self.onlet_config, text="Hauteur :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_hauteur = tk.Entry(self.onlet_config, width=10, justify="center")
-        self.entree_hauteur.insert(0, "800")
-        self.entree_hauteur.pack(anchor="w")
 
 
         # --- Bouton relancer ---
@@ -243,11 +228,8 @@ class Vue:
     # ========================================================
     def reinitialiser_simulation(self):
         params = {
-            "seed": int(self.entree_seed.get()),
             "nb_creatures": int(self.entree_nb_creatures.get()),
             "nb_aliments": int(self.entree_nb_aliments.get()),
-            "largeur": int(self.entree_largeur.get()),
-            "hauteur": int(self.entree_hauteur.get())
         }
         self.controleur.reinitialiser_simulation(params)
 

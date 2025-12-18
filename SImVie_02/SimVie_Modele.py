@@ -330,9 +330,6 @@ class Modele:
         self.oeuf_to_delete = []
                         
     def reinitialiser_simulation(self, params):
-        random.seed(params["seed"])
-        self.largeur = params["largeur"]
-        self.hauteur = params["hauteur"]
         self.aliments = []
         self.creatures = []
         self.creer_environnement(params["nb_aliments"],params["nb_creatures"])
