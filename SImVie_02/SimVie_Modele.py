@@ -149,7 +149,7 @@ class Creature:
             elif self.satiete > 100 :
                 self.satiete = 100
 
-            self.energie -= 0.5 + (0.1 * self.intensite)
+            self.energie -= 0.05 + (0.1 * self.intensite)
             if self.energie < 0:
                 self.energie = 0
             elif self.energie > 100 :
@@ -239,6 +239,7 @@ class Oeuf:
         self.position = mere.position
         self.duree = random.randint(100, 200)
         self.count = 0
+        self.taille = 50
 
     def cycle(self):
         self.count += 1
@@ -305,6 +306,7 @@ class Modele:
                                 self.oeuf.append(Oeuf(c, m))
                             m.count_repro_cycle = 0
                             m.glande.targetted = False
+                        break
             if c.maj_jauges() == False:
                 self.creatures_to_delete.append(c)
         for c in self.creatures_to_delete:
