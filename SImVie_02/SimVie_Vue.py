@@ -358,8 +358,8 @@ class Vue:
 
         for oeuf in list(self.id_oeufs.keys()):
             if oeuf not in self.modele.oeuf:
-                self.canevas.delete[self.id_oeufs[oeuf]]
-            del self.id_oeufs[oeuf]
+                self.canevas.delete(self.id_oeufs[oeuf])
+                del self.id_oeufs[oeuf]
 
 
         for creature in list(self.id_creatures.keys()):
@@ -375,6 +375,9 @@ class Vue:
 
         for creature in self.modele.creatures:
             self.maj_creature(creature)
+
+        for oeuf in self.modele.oeuf:
+            self.creer_oeuf(oeuf)
 
         self.rafraichir_jauges()
         self.mettre_a_jour_stats()
