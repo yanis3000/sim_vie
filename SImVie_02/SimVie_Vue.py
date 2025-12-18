@@ -95,16 +95,6 @@ class Vue:
         self.entree_hauteur.insert(0, "800")
         self.entree_hauteur.pack(anchor="w")
 
-        
-        tk.Label(self.onlet_config, text="Orientation :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_orientation = tk.Entry(self.onlet_config, width=10, justify="center")
-        self.entree_orientation.insert(0, "20")
-        self.entree_orientation.pack(anchor="w")
-
-        tk.Label(self.onlet_config, text="Vitesse :", bg="#dde7ec").pack(anchor="w", pady=(5, 0))
-        self.entree_vitesse = tk.Entry(self.onlet_config, width=10, justify="center")
-        self.entree_vitesse.insert(0, "10")
-        self.entree_vitesse.pack(anchor="w")
 
         # --- Bouton relancer ---
         self.bouton_seed = tk.Button(self.onlet_config, text="Relancer simulation",
@@ -113,17 +103,6 @@ class Vue:
 
         self.label_info = tk.Label(self.onlet_config, text="", bg="#dde7ec", fg="#333", wraplength=180)
         self.label_info.pack(anchor="w", pady=5)
-
-        # --- Contrôles dynamiques ---
-        tk.Label(self.onlet_config, text="🕹️  Contrôles", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
-        self.bouton_pause = tk.Button(self.onlet_config, text="⏸️ Pause", command=self.basculer_pause)
-        self.bouton_pause.pack(fill=tk.X, pady=3)
-
-        frame_vitesse = tk.Frame(self.onlet_config, bg="#dde7ec")
-        frame_vitesse.pack(fill=tk.X, pady=5)
-        tk.Label(frame_vitesse, text="Vitesse :", bg="#dde7ec").pack(side=tk.LEFT)
-        tk.Button(frame_vitesse, text="×0.5", width=5, command=self.ralentir).pack(side=tk.LEFT, padx=2)
-        tk.Button(frame_vitesse, text="×2", width=5, command=self.accelerer).pack(side=tk.LEFT, padx=2)
 
         # --- Options d’affichage ---
         tk.Label(self.onlet_config, text="👁️  Affichage", bg="#dde7ec", font=("Arial", 11, "bold")).pack(pady=(20, 5))
@@ -150,7 +129,8 @@ class Vue:
         self.onglet_jauges = ttk.Frame(self.notebook, style="bgCustom.TFrame")
         self.notebook.add(self.onglet_jauges, text="JAUGES")
 
-        tk.Label(self.onglet_jauges, text="📈 Statistiques", bg="#dde7ec", font=("Arial", 12, "bold")).pack(pady=(5))
+        # Élements descriptifs sur la creature
+        tk.Label(self.onglet_jauges, text="📈 Jauges", bg="#dde7ec", font=("Arial", 12, "bold")).pack(pady=(5))
         
         self.jauge_id = tk.Label(self.onglet_jauges, text="Identifiant : -", bg="#dde7ec", anchor="w")
         self.jauge_id.pack(fill=tk.X)
@@ -166,7 +146,6 @@ class Vue:
         self.jauge_sante.pack(fill=tk.X)
         self.jauge_reproduction = tk.Label(self.onglet_jauges, text="Envie de reproduction : 0 / 100", bg="#dde7ec", anchor="w")
         self.jauge_reproduction.pack(fill=tk.X)
-
 
         self.notebook.pack(expand=True, fill=tk.BOTH)
 
@@ -259,21 +238,6 @@ class Vue:
             self.etat_creature_str = "--"
 
 
-    def basculer_pause(self):
-        self.en_pause = not self.en_pause
-        if self.en_pause:
-            self.bouton_pause.config(text="▶️ Continuer")
-        else:
-            self.bouton_pause.config(text="⏸️ Pause")
-
-    def ralentir(self):
-        self.vitesse = max(0.25, self.vitesse / 2)
-        self.label_info.config(text=f"Vitesse : ×{self.vitesse:.2f}")
-
-    def accelerer(self):
-        self.vitesse = min(4.0, self.vitesse * 2)
-        self.label_info.config(text=f"Vitesse : ×{self.vitesse:.2f}")
-
     # ========================================================
     # REINITIALISATION
     # ========================================================
@@ -283,9 +247,7 @@ class Vue:
             "nb_creatures": int(self.entree_nb_creatures.get()),
             "nb_aliments": int(self.entree_nb_aliments.get()),
             "largeur": int(self.entree_largeur.get()),
-            "hauteur": int(self.entree_hauteur.get()),
-            "orientation": int(self.entree_orientation.get()),
-            "vitesse": int(self.entree_vitesse.get())
+            "hauteur": int(self.entree_hauteur.get())
         }
         self.controleur.reinitialiser_simulation(params)
 
@@ -298,6 +260,7 @@ class Vue:
         self.id_creatures = {}
         self.id_pointes = {}
         self.id_aliments = {}
+        self.id_oeufs = {}
         self.id_olfaction = {}
         self.id_phero = {}
         self.id_odeur = {}
@@ -306,6 +269,8 @@ class Vue:
             self.creer_aliment(aliment)
         for creature in self.modele.creatures:
             self.creer_creature(creature)
+        for oeuf in self.modele.oeuf:
+            self.creer_oeuf(oeuf)
             
         self.maj_visibilite()
 
@@ -333,14 +298,11 @@ class Vue:
     def creer_creature(self, creature):
         x, y = creature.position
         r = creature.taille
-        creature.deg_orientation = int(self.entree_orientation.get())
-        creature.vitesse = int(self.entree_vitesse.get())
         couleur = self.couleur_sante(creature.sante, creature.genre)
         couleur_m = "#FFA500"
         couleur_f = "#7F00FF"
 
         # Corps ovale orienté
-
         if creature.genre == "f":
             pts = self.forme_ovale(x, y, r, creature.orientation)
             id_c = self.canevas.create_polygon(pts, fill=couleur, outline=couleur_f, width=2, smooth=True, splinesteps=10, tags=("creatures", creature.id))
@@ -372,14 +334,19 @@ class Vue:
 
         self.maj_visibilite()
 
+    def creer_oeuf(self, oeuf):
+        x, y = oeuf.position
+        r = oeuf.taille
+        id_oeuf = self.canevas.create_oval(x - r, y - r, x + r, y + r, fill="#0041C2", outline="")
+        self.id_oeufs[oeuf] = id_oeuf
+
+        self.maj_visibilite()
+
 
     # ========================================================
     # RAFRAÎCHISSEMENT
     # ========================================================
     def rafraichir(self):
-        if self.en_pause:
-            return
-        self.tick += 1
 
         for aliment in list(self.id_aliments.keys()):
             if aliment not in self.modele.aliments:
@@ -387,6 +354,12 @@ class Vue:
                     self.canevas.delete(cid)
                 self.canevas.delete(self.id_aliments[aliment])
                 del self.id_aliments[aliment], self.id_odeur[aliment]
+
+
+        for oeuf in list(self.id_oeufs.keys()):
+            if oeuf not in self.modele.oeuf:
+                self.canevas.delete[self.id_oeufs[oeuf]]
+            del self.id_oeufs[oeuf]
 
 
         for creature in list(self.id_creatures.keys()):
