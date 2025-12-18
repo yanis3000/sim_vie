@@ -140,21 +140,6 @@ class Creature:
             else :
                 self.intensite = 0
 
-            # --- 5. MÉTABOLISME ---
-            # Chaque déplacement consomme de l'énergie.
-            # Ici, on modélise une perte de base (0.05) + une dépense proportionnelle à l’activité.
-            self.satiete -= 0.1 + (0.1 * self.intensite)
-            if self.satiete < 0:
-                self.satiete = 0
-            elif self.satiete > 100 :
-                self.satiete = 100
-
-            self.energie -= 0.05 + (0.1 * self.intensite)
-            if self.energie < 0:
-                self.energie = 0
-            elif self.energie > 100 :
-                self.energie = 100
-
             if self.energie == 0 :
                 self.dormir()
 
@@ -229,6 +214,18 @@ class Creature:
         # maj Reproduction
         self.envie_reproduction = (a * math.pow(self.count_repro_cycle, 2)) + (self.count_repro_cycle * b) + c 
 
+        self.satiete -= 0.1 + (0.1 * self.intensite)
+        if self.satiete < 0:
+            self.satiete = 0
+        elif self.satiete > 100 :
+            self.satiete = 100
+
+        self.energie -= 0.07 + (0.1 * self.intensite)
+        if self.energie < 0:
+            self.energie = 0
+        elif self.energie > 100 :
+            self.energie = 100
+
         return self.sante > 0
     
 
@@ -239,7 +236,7 @@ class Oeuf:
         self.position = mere.position
         self.duree = random.randint(100, 200)
         self.count = 0
-        self.taille = 50
+        self.taille = 8
 
     def cycle(self):
         self.count += 1
@@ -300,11 +297,14 @@ class Modele:
                     if id == m.id:
                         if m.etat == Etat.DISPONIBLE:
                             m.etat = Etat.REPRODUCTION
-                            m.count_limit_action = 100
+                            m.count_limit_action = 500
                         else:
-                            for _ in range(m.gestation_cap + 1):
-                                self.oeuf.append(Oeuf(c, m))
+                            oeuf = Oeuf(c, m)
+                            self.oeuf.append(oeuf)
+                            self.controleur.vue.creer_oeuf(oeuf)
+                            m.etat = Etat.DISPONIBLE
                             m.count_repro_cycle = 0
+                            m.count_action = 0
                             m.glande.targetted = False
                         break
             if c.maj_jauges() == False:

@@ -55,7 +55,7 @@ class SystemeNerveux:
         # --- satiété, énergie, santé, reproduction --- #
 
         self.seuil_olfactif = [60, 5, 5, 0]
-        self.seuil_vomeronasal = [20, 20, 30, 30]
+        self.seuil_vomeronasal = [20, 20, 30, 50]
         self.rules = (True, False, False, False)
         self.jauge = []
 

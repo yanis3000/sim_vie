@@ -269,8 +269,6 @@ class Vue:
             self.creer_aliment(aliment)
         for creature in self.modele.creatures:
             self.creer_creature(creature)
-        for oeuf in self.modele.oeuf:
-            self.creer_oeuf(oeuf)
             
         self.maj_visibilite()
 
@@ -376,8 +374,8 @@ class Vue:
         for creature in self.modele.creatures:
             self.maj_creature(creature)
 
-        for oeuf in self.modele.oeuf:
-            self.creer_oeuf(oeuf)
+        # for oeuf in self.modele.oeuf:
+        #     self.creer_oeuf(oeuf)
 
         self.rafraichir_jauges()
         self.mettre_a_jour_stats()
