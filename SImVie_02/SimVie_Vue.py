@@ -232,6 +232,8 @@ class Vue:
                 self.etat_creature_str = "MANGER"
             elif self.etat_creature == 2:
                 self.etat_creature_str = "REPRODUCTION"
+            elif self.etat_creature == 3:
+                self.etat_creature_str = "DORMIR"
             else:
                 self.etat_creature_str = "--"
 
@@ -251,6 +253,8 @@ class Vue:
             self.etat_creature_str = "MANGER"
         elif self.etat_creature == 2:
             self.etat_creature_str = "REPRODUCTION"
+        elif self.etat_creature == 3:
+            self.etat_creature_str = "DORMIR"
         else:
             self.etat_creature_str = "--"
 

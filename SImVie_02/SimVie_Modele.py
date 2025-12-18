@@ -38,6 +38,7 @@ class Etat(Enum): # selon la convention, le name reste en majuscule
     DISPONIBLE = 0
     MANGER = 1
     REPRODUCTION = 2
+    DORMIR = 3
 
 class Creature:
     def __init__(self, position, taille, id):
@@ -148,6 +149,15 @@ class Creature:
             elif self.satiete > 100 :
                 self.satiete = 100
 
+            self.energie -= 0.5 + (0.1 * self.intensite)
+            if self.energie < 0:
+                self.energie = 0
+            elif self.energie > 100 :
+                self.energie = 100
+
+            if self.energie == 0 :
+                self.dormir()
+
             # --- 6. INTERACTION AVEC L’ENVIRONNEMENT ---
             # Si la créature touche un aliment, elle le consomme.
             for a in aliments[:]:
@@ -178,6 +188,10 @@ class Creature:
             aliment.targetted = True
             self.count_limit_action = 100
 
+    def dormir(self) :
+        self.etat = Etat.DORMIR
+        self.count_limit_action = 100
+
     def se_reproduire(self, glande):
         if self.narines.capteur.ganglion.vomeronasal_actif:
             self.etat = Etat.REPRODUCTION      
@@ -199,6 +213,10 @@ class Creature:
             self.count_repro_cycle = 0
             self.count_action = 0
             return True
+        if self.etat == Etat.DORMIR:
+            self.etat = Etat.DISPONIBLE
+            self.energie = 100
+            self.count_action = 0
 
     def maj_jauges(self):
         self.count_cycle += 1
