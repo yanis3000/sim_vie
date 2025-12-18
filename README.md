@@ -5,10 +5,10 @@
 ### Manipulations humaines dans l'interface
 <!-- L'interface est presque la même que celle de départ. C'est surtout le modèle qui a été travaillé. -->
 
-Nous avons conservé l'interface utilisateur de base et avons pris la décision d'ajouter des fonctionnalités supplémentaires pour une meilleure expérience. Nous avons rajouter ;
+Nous avons conservé l'interface utilisateur de base et avons pris la décision d'ajouter des fonctionnalités supplémentaires pour une meilleure expérience. Nous avons rajouter :
 
 - Une case `Afficher les phéromones` pour afficher leur émission par les créatures femelles.
-- Un onglet `Jauges` comprenant ;
+- Un onglet `Jauges` qui se met à jour dynamiquement lorsqu'on clique sur une créature comprenant :
     - L'identifiant de chacune des créatures, 
     - Leur état : [`Disponible`, `Manger`, `Reproduction`, `Dormir`], 
     - Leur jauge de faim,
@@ -17,9 +17,9 @@ Nous avons conservé l'interface utilisateur de base et avons pris la décision 
 
 ### Opérations effectuées par l'ordinateur
 #### Sprint 1 : 
-Le modèle est la partie dans laquelle nous avons été les plus impliqués. Nous avons fait beaucoup de modifications par rapport au code de base. Nous avons repensé plusieurs choses dont ;
+Le modèle est la partie dans laquelle nous avons été les plus impliqués. Nous avons fait beaucoup de modifications par rapport au code de base. Nous avons repensé plusieurs choses dont :
 - La classe `Glande` pour gérer la jauge d'envie des créatures et implémenter l'émission des phéromones
-- Notre système d'odorat a été développé en se basant sur la biologie. Nous avons simuler un système de olfactif en créant ;
+- Notre système d'odorat a été développé en se basant sur la biologie. Nous avons simuler un système de olfactif en créant :
     - Un classe `Nez` qui stocke les stimulis, 
     - Un classe `Capteur` qui réagit aux stimulis et se connecte aux ganglions,
     - Un classe `GanglionOlfactif` pour laisser passer ou bloquer les stimulis.
@@ -41,7 +41,7 @@ Dans cette partie du projet, notre attention s'est davantage portée sur la cré
     - `Dormir` pour récupérer de l'énergie.
 - Nous arrivons à faire apparaiître de la nourriture sur la carte de manière périodique pour ne pas en manquer.
 
-Dans la vue, nous avons réussi à faire plusieurs choses aussi notamment ; 
+Dans la vue, nous avons réussi à faire plusieurs choses aussi notamment : 
 - Ajouter les infos de l'ADN dans l'onglet `Créature`
 - Faire apparaître les œufs dans la vue
 - Changer la couleur des créatures selon leur genre
